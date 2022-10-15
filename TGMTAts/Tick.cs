@@ -199,7 +199,7 @@ namespace TGMTAts {
                     panel[21] = 0;
                     if (Ato.IsAvailable()) {
                         // 闪烁
-                        panel[40] = time % 500 < 250 ? 1 : 0;
+                        panel[40] = time % 1000 < 500 ? 1 : 0;
                     }
                 }
             }
@@ -388,7 +388,7 @@ namespace TGMTAts {
 
             // 刷新HMI, TDT, 信号机材质，为了减少对FPS影响把它限制到最多一秒十次
             if (lastDrawTime > state.Time) lastDrawTime = 0;
-            if (state.Time - lastDrawTime > 100) {
+            if (state.Time - lastDrawTime > 250) {
                 lastDrawTime = state.Time;
                 TextureManager.UpdateTexture(TextureManager.HmiTexture, TGMTPainter.PaintHMI(panel, state));
                 TextureManager.UpdateTexture(TextureManager.TdtTexture, TGMTPainter.PaintTDT(panel, state));
