@@ -33,7 +33,7 @@ namespace TGMTAts {
 
             CalculatedLimit maximumCurve = null, targetCurve = null, recommendCurve = null;
             switch (signalMode) {
-                case 0:
+                case 0://RM
                     ebSpeed = Config.RMSpeed;
                     recommendSpeed = -10;
                     targetDistance = -10;
@@ -101,12 +101,15 @@ namespace TGMTAts {
             }
 
             // 显示速度、预选模式、驾驶模式、控制级别、车门模式
-            panel[1] = Convert.ToInt32(Math.Ceiling(Math.Abs(state.Speed) * speedMultiplier));
-            panel[22] = selectedMode;
-            panel[24] = driveMode;
-            panel[25] = signalMode;
-            panel[28] = (driveMode > 0) ? (driveMode > 1 ? doorMode : 1) : 0;
-
+            if (lastDrawTime > state.Time) lastDrawTime = 0;
+            if (state.Time - lastDrawTime > 200)
+            {
+                panel[1] = Convert.ToInt32(Math.Ceiling(Math.Abs(state.Speed) * speedMultiplier));
+                panel[22] = selectedMode;
+                panel[24] = driveMode;
+                panel[25] = signalMode;
+                panel[28] = (driveMode > 0) ? (driveMode > 1 ? doorMode : 1) : 0;
+            }
             // 显示临时预选模式
             if (state.Speed != 0 || time > selectModeStartTime + Config.ModeSelectTimeout * 1000) {
                 selectingMode = -1;
@@ -122,53 +125,80 @@ namespace TGMTAts {
                 targetDistance = 0;
                 targetSpeed = -10;
             }
-            panel[11] = distanceToPixel(targetDistance);
-            panel[19] = (int)targetDistance;
-            panel[16] = (int)(ebSpeed * speedMultiplier);
-            if (driveMode < 2) {
-                panel[15] = (int)(recommendSpeed * speedMultiplier);
-            } else {
-                panel[15] = -1;
+            if (lastDrawTime > state.Time) lastDrawTime = 0;
+            if (state.Time - lastDrawTime > 200)
+            {
+                panel[11] = distanceToPixel(targetDistance);
+                panel[19] = (int)targetDistance;
+                panel[16] = (int)(ebSpeed * speedMultiplier);
+                if (driveMode < 2)
+                {
+                    panel[15] = (int)(recommendSpeed * speedMultiplier);
+                }
+                else
+                {
+                    panel[15] = -1;
+                }
             }
             distanceToColor(targetSpeed, targetDistance, panel);
             targetSpeed = Math.Min(targetSpeed, Config.MaxSpeed);
-            panel[17] = (int)targetSpeed;
-            panel[18] = (targetSpeed < 0) ? 1 : 0;
-            panel[29] = panel[31] = 0;
-
-            // 显示出发与屏蔽门信息
-            if (signalMode > 1 && state.Speed == 0) {
-                if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.DoorEnableWindow
-                    && time > StationManager.NextStation.DepartureTime - Config.DepartRequestTime * 1000) {
-                    panel[32] = 2;
-                } else if (doorOpen && time - doorOpenTime >= 3000) {
-                    panel[32] = 1;
-                } else {
+            if (lastDrawTime > state.Time) lastDrawTime = 0;
+            if (state.Time - lastDrawTime > 200)
+            {
+                panel[17] = (int)targetSpeed;
+                panel[18] = (targetSpeed < 0) ? 1 : 0;
+                panel[29] = panel[31] = 0;
+                // 显示出发与屏蔽门信息
+                if (signalMode > 1 && state.Speed == 0)
+                {
+                    if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.DoorEnableWindow
+                        && time > StationManager.NextStation.DepartureTime - Config.DepartRequestTime * 1000)
+                    {
+                        panel[32] = 2;
+                    }
+                    else if (doorOpen && time - doorOpenTime >= 3000)
+                    {
+                        panel[32] = 1;
+                    }
+                    else
+                    {
+                        panel[32] = 0;
+                    }
+                }
+                else
+                {
                     panel[32] = 0;
                 }
-            } else {
-                panel[32] = 0;
-            }
-            if (signalMode >= 2 && state.Speed == 0) {
-                if (doorOpen) {
-                    if (time - doorOpenTime >= 1000) {
-                        panel[29] = 3;
-                    } else {
-                        panel[29] = 0;
+                if (signalMode >= 2 && state.Speed == 0)
+                {
+                    if (doorOpen)
+                    {
+                        if (time - doorOpenTime >= 1000)
+                        {
+                            panel[29] = 3;
+                        }
+                        else
+                        {
+                            panel[29] = 0;
+                        }
                     }
-                } else {
-                    if (time - doorCloseTime >= 1000) {
-                        panel[29] = 0;
-                    } else {
-                        panel[29] = 3;
+                    else
+                    {
+                        if (time - doorCloseTime >= 1000)
+                        {
+                            panel[29] = 0;
+                        }
+                        else
+                        {
+                            panel[29] = 3;
+                        }
                     }
                 }
+
+                // 如果没有无线电，显示无线电故障
+                panel[23] = state.Speed == 0 ? 0 : 1;
+                panel[30] = deviceCapability != 2 ? 1 : 0;
             }
-
-            // 如果没有无线电，显示无线电故障
-            panel[23] = state.Speed == 0 ? 0 : 1;
-            panel[30] = deviceCapability != 2 ? 1 : 0;
-
             // ATO
             panel[40] = 0;
             Ato.UpdateAccel(state.Speed, recommendSpeed);
@@ -180,20 +210,36 @@ namespace TGMTAts {
                     driveMode = 1;
                 }
                 if (driveMode >= 2) {
-                    panel[40] = 1;
+                    if (lastDrawTime > state.Time) lastDrawTime = 0;
+                    if (state.Time - lastDrawTime > 200)
+                    {
+                        panel[40] = 1;
+                    }
                     var notch = Ato.GetCmdNotch(state.Speed, recommendSpeed, ebSpeed);
                     if (notch < 0) {
                         handles.Power = 0;
                         handles.Brake = -notch;
-                        panel[21] = 3;
+                        if (lastDrawTime > state.Time) lastDrawTime = 0;
+                        if (state.Time - lastDrawTime > 200)
+                        {
+                            panel[21] = 3; 
+                        }
                     } else if (notch > 0) {
                         handles.Power = notch;
                         handles.Brake = 0;
-                        panel[21] = 1;
+                        if (lastDrawTime > state.Time) lastDrawTime = 0;
+                        if (state.Time - lastDrawTime > 200)
+                        {
+                            panel[21] = 1;
+                        }
                     } else {
                         handles.Power = 0;
                         handles.Brake = 0;
-                        panel[21] = 2;
+                        if (lastDrawTime > state.Time) lastDrawTime = 0;
+                        if (state.Time - lastDrawTime > 200)
+                        {
+                            panel[21] = 2;
+                        }
                     }
                 } else {
                     panel[21] = 0;
@@ -245,7 +291,7 @@ namespace TGMTAts {
                 // ITC下冲出移动授权终点。
                 if (state.Speed == 0) {
                     // 停稳后降级到RM模式。等待确认。
-                    ackMessage = 6;
+                    // ackMessage = 6;
                 }
                 ebState = 1;
                 // 显示紧急制动、目标距离0、速度0
@@ -283,12 +329,12 @@ namespace TGMTAts {
 
             // 显示释放速度、确认消息
             if (releaseSpeed) panel[31] = 3;
-            if (ackMessage > 0) {
+           /* if (ackMessage > 0) {
                 panel[35] = ackMessage;
                 panel[36] = ((state.Time / 1000) % 0.5 < 0.25) ? 1 : 0;
             } else {
                 panel[35] = panel[36] = 0;
-            }
+            }*/
 
             // 显示TDT、车门使能，车门零速保护
             if (StationManager.NextStation != null) {
@@ -387,11 +433,19 @@ namespace TGMTAts {
             }
 
             // 刷新HMI, TDT, 信号机材质，为了减少对FPS影响把它限制到最多一秒十次
+            // 卡斯柯刷新率为200ms/次
             if (lastDrawTime > state.Time) lastDrawTime = 0;
-            if (state.Time - lastDrawTime > 250) {
+            if (state.Time - lastDrawTime > 200) {
                 lastDrawTime = state.Time;
                 TextureManager.UpdateTexture(TextureManager.HmiTexture, TGMTPainter.PaintHMI(panel, state));
                 TextureManager.UpdateTexture(TextureManager.TdtTexture, TGMTPainter.PaintTDT(panel, state));
+            }
+            // 刷新生命显示
+            if (lastDrawTime > state.Time) lastDrawTime = 0;
+            if (state.Time - lastDrawTime > 200)
+            {
+                if (panel[42] > 5) panel[42] = 0;
+                ++panel[42];
             }
             return handles;
         }

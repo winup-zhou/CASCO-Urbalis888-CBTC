@@ -22,7 +22,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
@@ -87,10 +86,9 @@
     <TargetFrameworkVersion Condition="'$(Platform)' == 'x86'">v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Lib.Harmony.2.1.0\lib\$(HarmonyFramework)\0Harmony.dll</HintPath>
+    <Reference Include="Harmony-net48, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+      <HintPath>DXDT\Harmony-net48.dll</HintPath>
     </Reference>
     <Reference Include="SlimDX, Version=2.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
       <HintPath>..\packages\SlimDX.4.0.13.44\lib\$(SlimDXFramework)\SlimDX.dll</HintPath>
@@ -101,6 +99,10 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Data" />
+    <Reference Include="Zbx1425.DXDynamicTexture-net48, Version=1.2.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DXDT\Zbx1425.DXDynamicTexture-net48.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ato.cs" />
@@ -145,7 +147,7 @@ COPY /Y $(TargetDir)x64\*.dll $(SolutionDir)..\Ats64
   <PropertyGroup>
     <DllExportIdent>8BC69933-F5AF-41DA-88E8-18BD0177ED8E</DllExportIdent>
     <DllExportMetaLibName>DllExport.dll</DllExportMetaLibName>
-    <DllExportNamespace>System.Runtime.InteropServices</DllExportNamespace>
+    <DllExportNamespace>TGMTAts</DllExportNamespace>
     <DllExportDDNSCecil>true</DllExportDDNSCecil>
     <DllExportSkipOnAnyCpu>false</DllExportSkipOnAnyCpu>
     <PlatformTarget>AnyCPU</PlatformTarget>

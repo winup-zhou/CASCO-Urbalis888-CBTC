@@ -39,6 +39,7 @@ namespace TGMTAts {
         public static double TDTFreezeDistance = 10;
 
         public static string HarmonyPath = "0Harmony.dll";
+        public static string DXDynamicTexturePath = "";
         public static string ImageAssetPath = "TGMT";
 
         public static string HMIImageSuffix = "zbx1425_tgmt_hmi.png";
@@ -127,8 +128,10 @@ namespace TGMTAts {
 
             dict.Cfg("harmonypath", ref HarmonyPath);
             dict.Cfg("imageassetpath", ref ImageAssetPath);
+            dict.Cfg("DXDynamicTexturePath", ref DXDynamicTexturePath);
             HarmonyPath = Path.GetFullPath(Path.Combine(PluginDir, HarmonyPath));
             ImageAssetPath = Path.GetFullPath(Path.Combine(PluginDir, ImageAssetPath));
+            DXDynamicTexturePath = Path.GetFullPath(Path.Combine(PluginDir, DXDynamicTexturePath));
 
             dict.Cfg("hmiimagesuffix", ref HMIImageSuffix);
             dict.Cfg("tdtimagesuffix", ref TDTImageSuffix);

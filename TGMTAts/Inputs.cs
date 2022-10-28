@@ -12,7 +12,7 @@ namespace TGMTAts{
         public static void KeyDown(AtsKey key){
             if (key == AtsKey.B2) {
                 // End 模式确认
-                switch (ackMessage) {
+                /*switch (ackMessage) {
                     case 2:
                         // 释放速度
                         if (!releaseSpeed) Log("释放速度");
@@ -37,7 +37,7 @@ namespace TGMTAts{
                         signalMode = 0;
                         FixIncompatibleModes();
                         break;
-                }
+                }*/
             } else if (key == AtsKey.A1 || key == AtsKey.B1) {
                 // Insert Home ATO启动
                 if (key == AtsKey.A1) a1Down = true;
