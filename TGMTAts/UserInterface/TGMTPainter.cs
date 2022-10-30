@@ -69,7 +69,7 @@ namespace TGMTAts {
             GDI32.DrawImage(special, 646, 405, panel[31] * 50, 50);
             GDI32.DrawImage(ackcmd, 440, 472, panel[35] * 100, 100);
             GDI32.DrawImage(atoctrl, 32, 395, panel[21] * 50, 50);
-            GDI32.DrawImage(selmode, 150, 395, panel[22] * 50, 50);
+            GDI32.DrawImage(selmode, 130, 395, panel[22] * 50, 50);
 
             GDI32.DrawImage(alive, 20, 550, panel[42] * 45, 45);
 
@@ -107,7 +107,7 @@ namespace TGMTAts {
             g800.FillRectangle(overspeed[panel[10]], new Rectangle(15, 13, 75, 73));
             g800.FillRectangle(targetColor[panel[13] * 1 + panel[14] * 2], new Rectangle(68, 354 - panel[11], 25, panel[11]));
             if (panel[36] != 0 && TGMTAts.time % 1000 < 500) {
-                g800.DrawRectangle(ackPen, new Rectangle(438, 470, 280, 100));
+                g800.DrawRectangle(ackPen, new Rectangle(75, 455, 368, 94));
             }
 
             var tSpeed = ((double)panel[1] / 100 * 288 - 144) / 180 *Math.PI;
@@ -197,8 +197,8 @@ namespace TGMTAts {
         static Pen circlePenWhite = new Pen(Color.White, 5);
         static Pen circlePenOrangeRed = new Pen(Color.OrangeRed, 5);
         static Pen circlePenRed = new Pen(Color.Red, 5);
-        static Pen ackPen = new Pen(Color.Yellow, 4);
-        static Brush[] targetColor = new Brush[] { new SolidBrush(Color.Red), new SolidBrush(Color.OrangeRed), new SolidBrush(Color.Green) };
+        static Pen ackPen = new Pen(Color.Yellow, 8);
+        static Brush[] targetColor = new Brush[] { new SolidBrush(Color.Red), new SolidBrush(Color.Yellow), new SolidBrush(Color.Green) };
         static Brush[] overspeed = new Brush[] { new SolidBrush(Color.Empty), new SolidBrush(Color.OrangeRed), new SolidBrush(Color.Red)};
         static Brush[] targetspeedshow = new Brush[] { new SolidBrush(Color.Empty), new SolidBrush(Color.FromArgb(2, 17, 33)) };
         static int hmi, ackcmd, atoctrl, dormode, dorrel, drvmode, emergency, fault, departure, menu,

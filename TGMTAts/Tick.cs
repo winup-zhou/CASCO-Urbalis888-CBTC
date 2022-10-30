@@ -341,7 +341,7 @@ namespace TGMTAts {
                 if (StationManager.NextStation.DepartureTime < 0.1) panel[102] = 0;
                 if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.StationStartDistance) {
                     // 在车站范围内
-                    if (Math.Abs(StationManager.NextStation.StopPosition - location) > Config.StationStartDistance - 50) panel[29] = 4;
+                    if (!StationManager.NextStation.Pass && Math.Abs(StationManager.NextStation.StopPosition - location) > Config.StationStartDistance - 50) panel[29] = 4;
                     if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.DoorEnableWindow) {
                         // 在停车窗口内
                         if (state.Speed < 1) {
@@ -389,7 +389,7 @@ namespace TGMTAts {
                 }
             }
 
-            if (StationManager.NextStation.Pass && Math.Abs(StationManager.NextStation.StopPosition - location) < Config.StationStartDistance) panel[31] = 1;
+            if (StationManager.NextStation.Pass && Math.Abs(StationManager.NextStation.StopPosition - location) < Config.StationStartDistance * 2) panel[31] = 1;
 
             //手动EB,只能停车后缓解
             if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed != 0) ebState = 1;
