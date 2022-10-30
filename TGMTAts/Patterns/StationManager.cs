@@ -43,19 +43,34 @@ namespace TGMTAts {
         }
 
         public static void Update(TGMTAts.AtsVehicleState state, bool doorState) {
-            if (state.Speed == 0 && state.Location > NextStation.StopPosition - Config.StationStartDistance) {
-                if (!Stopped) TGMTAts.Log("已在站内停稳");
-                Stopped = true;
+            if (!NextStation.Pass)
+            {
+                if (state.Speed == 0 && state.Location > NextStation.StopPosition - Config.StationStartDistance)
+                {
+                    if (!Stopped) TGMTAts.Log("已在站内停稳");
+                    Stopped = true;
+                }
+                if (doorState)
+                {
+                    if (!Arrived) TGMTAts.Log("已开门");
+                    Arrived = true;
+                }
+                if (state.Location > NextStation.StopPosition + Config.StationEndDistance)
+                {
+                    NextStation = new Station();
+                    Stopped = false;
+                    Arrived = false;
+                    TGMTAts.Log("已出站");
+                }
             }
-            if (doorState) {
-                if (!Arrived) TGMTAts.Log("已开门");
-                Arrived = true;
-            }
-            if (state.Location > NextStation.StopPosition + Config.StationEndDistance) {
-                NextStation = new Station();
-                Stopped = false;
-                Arrived = false;
-                TGMTAts.Log("已出站");
+            else {
+                if (state.Location > NextStation.StopPosition + Config.StationEndDistance)
+                {
+                    NextStation = new Station();
+                    Stopped = false;
+                    Arrived = false;
+                    TGMTAts.Log("已出站");
+                }
             }
         }
 
