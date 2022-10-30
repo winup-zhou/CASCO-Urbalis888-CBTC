@@ -16,7 +16,9 @@ namespace TGMTAts {
         public static double location = -114514;
 
         public static List<string> debugMessages = new List<string>();
-        // 卡斯柯特有的信息提示栏 类型：时间 信息
+
+        /*
+          // 卡斯柯特有的信息提示栏 类型：时间 信息
         public static List<Tuple<int, int, int>> Messages = new List<Tuple<int, int, int>>();
         
         // 0: (未选择); 1: AM-BM; 2: AM-C;
@@ -34,10 +36,26 @@ namespace TGMTAts {
         // 卡斯柯仅有两种预选 AM-BM AM-CBTC
         public static int selectingMode = -1;
         public static int selectModeStartTime = 2;
+         */
+
+        // 0: RM; 1: SM-I; 2: SM-C; 3: AM-I; 4: AM-C; 5: XAM
+        public static int selectedMode = 4;
+        // 0: RM; 1: SM; 2: AM; 3: XAM
+        public static int driveMode = 1;
+        // 0: IXL; 1: ITC; 2: CTC
+        public static int signalMode = 2;
+        // 1: MM; 2: AM; 3: AA
+        public static int doorMode = 1;
+        // 0: 没有CTC,ITC; 1: 没有CTC; 2: 正常
+        public static int deviceCapability = 2;
+
+        // 暂时的预选速度，-1表示没有在预选
+        public static int selectingMode = -1;
+        public static int selectModeStartTime = 0;
 
         public static int ebState = 0;
         public static bool releaseSpeed = false;
-        //public static int ackMessage = 0;
+        public static int ackMessage = 0;
 
         public static double reverseStartLocation = Config.LessInf;
         
@@ -48,21 +66,18 @@ namespace TGMTAts {
 
         public static HarmonyLib.Harmony harmony;
 
-
-
         static TGMTAts() {
             Config.Load(Path.Combine(Config.PluginDir, "TGMTConfig.txt"));
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
         }
 
-        const string ExpectedHash = "9758E6EA853B042ED49582081371764F43BC8E4DC7955C2B6D949015B984C8E2";
+        //const string ExpectedHash = "9758E6EA853B042ED49582081371764F43BC8E4DC7955C2B6D949015B984C8E2";
 
         [DllExport(CallingConvention.StdCall)]
         public static void Load(){
-            Zbx1425.DXDynamicTexture.TextureManager.Initialize();
-            if (FolderHash.Calculate(Config.ImageAssetPath) != ExpectedHash) {
+            /*if (FolderHash.Calculate(Config.ImageAssetPath) != ExpectedHash) {
                 throw new InvalidDataException("TGMT Image data is not original!");
-            }
+            }*/
 
             if (Config.Debug) {
                 new Thread(() => {
@@ -70,6 +85,8 @@ namespace TGMTAts {
                     Application.Run(debugWindow);
                 }).Start();
             }
+
+            Zbx1425.DXDynamicTexture.TextureManager.Initialize();
 
             harmony = new HarmonyLib.Harmony("cn.zbx1425.bve.trainguardmt");
             try {
@@ -81,14 +98,21 @@ namespace TGMTAts {
         }
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
-            if (args.Name.Contains("Harmony")) {
-                return Assembly.LoadFile(Config.HarmonyPath);
+            if (args.Name.Contains("Harmony"))
+            {
+                var libPath = Path.GetFullPath(Path.Combine(
+                    Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),
+                    Config.DTLibPath
+                ));
+                var fileName = (Environment.Version.Major >= 4) ?
+                    "Harmony-net48.dll" : "Harmony-net35.dll";
+                return Assembly.LoadFile(Path.Combine(libPath, fileName));
             }
             if (args.Name.Contains("DXDynamicTexture"))
             {
                 var libPath = Path.GetFullPath(Path.Combine(
                     Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),
-                    Config.DXDynamicTexturePath
+                    Config.DTLibPath
                 ));
                 var fileName = (Environment.Version.Major >= 4) ?
                     "Zbx1425.DXDynamicTexture-net48.dll" : "Zbx1425.DXDynamicTexture-net35.dll";

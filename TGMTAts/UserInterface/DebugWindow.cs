@@ -19,7 +19,7 @@ namespace TGMTAts {
         private void timer1_Tick(object sender, EventArgs e) {
             if (!TGMTAts.pluginReady) return;
             var sb = new StringBuilder();
-            sb.AppendLine("CASCO-Urbalis Ats Beta for BVE5/6 1.2 by zbx1425 2021-7-12 https://www.zbx1425.cn , Re-build by Win_Update");
+            sb.AppendLine("TGMTAts Beta for BVE5/6 1.2 by zbx1425 2021-7-12 https://www.zbx1425.cn");
             sb.AppendFormat("车位     : {0}\n", D(TGMTAts.location));
             if (TGMTAts.nextLimit == null) {
                 sb.AppendLine("下一限速 : 无");

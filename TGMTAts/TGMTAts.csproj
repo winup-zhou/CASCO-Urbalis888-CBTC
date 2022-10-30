@@ -86,9 +86,10 @@
     <TargetFrameworkVersion Condition="'$(Platform)' == 'x86'">v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Harmony-net48, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="0Harmony, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lib.Harmony.2.1.0\lib\$(HarmonyFramework)\0Harmony.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>DXDT\Harmony-net48.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="SlimDX, Version=2.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
       <HintPath>..\packages\SlimDX.4.0.13.44\lib\$(SlimDXFramework)\SlimDX.dll</HintPath>
@@ -99,9 +100,8 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Data" />
-    <Reference Include="Zbx1425.DXDynamicTexture-net48, Version=1.2.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>DXDT\Zbx1425.DXDynamicTexture-net48.dll</HintPath>
+    <Reference Include="Zbx1425.DXDynamicTexture-net48">
+      <HintPath>..\..\CASCO-Urbalis888-CBTC\TGMTAts\DXDT\Zbx1425.DXDynamicTexture-net48.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

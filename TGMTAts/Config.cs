@@ -30,6 +30,8 @@ namespace TGMTAts {
         public static double StationEndDistance = 5;
         public static double StationMotionEndpoint = 3;
         public static double CTCSafetyDistance = 30;
+        public static double TargetSpeedShowDistance = 1000;
+        public static double CloseRequestShowTime = 1000;
 
         public static double TrainLength = 0;
 
@@ -38,8 +40,7 @@ namespace TGMTAts {
 
         public static double TDTFreezeDistance = 10;
 
-        public static string HarmonyPath = "0Harmony.dll";
-        public static string DXDynamicTexturePath = "";
+        public static string DTLibPath = "";
         public static string ImageAssetPath = "TGMT";
 
         public static string HMIImageSuffix = "zbx1425_tgmt_hmi.png";
@@ -120,18 +121,18 @@ namespace TGMTAts {
             dict.Cfg("stationenddistance", ref StationEndDistance);
             dict.Cfg("stationmotionendpoint", ref StationMotionEndpoint);
             dict.Cfg("departrequesttime", ref DepartRequestTime);
+            dict.Cfg("targetspeedshowdistance", ref TargetSpeedShowDistance);
+            dict.Cfg("closerequestshowtime", ref CloseRequestShowTime);
 
             dict.Cfg("trainlength", ref TrainLength);
 
             dict.Cfg("tdtfreezedistance", ref TDTFreezeDistance);
             dict.Cfg("modeselecttimeout", ref ModeSelectTimeout);
 
-            dict.Cfg("harmonypath", ref HarmonyPath);
+            dict.Cfg("dtlibpath", ref DTLibPath);
             dict.Cfg("imageassetpath", ref ImageAssetPath);
-            dict.Cfg("DXDynamicTexturePath", ref DXDynamicTexturePath);
-            HarmonyPath = Path.GetFullPath(Path.Combine(PluginDir, HarmonyPath));
+            DTLibPath = Path.GetFullPath(Path.Combine(PluginDir, DTLibPath));
             ImageAssetPath = Path.GetFullPath(Path.Combine(PluginDir, ImageAssetPath));
-            DXDynamicTexturePath = Path.GetFullPath(Path.Combine(PluginDir, DXDynamicTexturePath));
 
             dict.Cfg("hmiimagesuffix", ref HMIImageSuffix);
             dict.Cfg("tdtimagesuffix", ref TDTImageSuffix);
