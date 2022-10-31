@@ -14,8 +14,8 @@ Supports the simulation of ATO and ATP, both CBTC(moving block) and BM(fixed blo
 - [x] Special display on CASCO Urbalis
 - [ ] Sound on CASCO Urbalis (~~Warning sound~~ Other sound)
 - [ ] Buttons on CASCO Urbalis (RM1 RM2 BM ATB ~~ATO~~ ATC_BYPASS)
-- [ ] TDT diaplay on DMI
-- [ ] TDT diaplay on structure
+- [ ] TDT display on DMI
+- [ ] TDT display on structure
 - [ ] Signals (type F Z Y J C)
 - [ ] Mouse clickable buttons
 - [ ] Menu display
