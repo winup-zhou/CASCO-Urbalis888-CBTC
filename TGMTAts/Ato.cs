@@ -37,16 +37,28 @@ namespace TGMTAts {
                 decelA += 2;
                 decelB += 2;
             }
-
-            if (staDist < 0.9 && !StationManager.Arrived) {
-                return 3; // 这大概停得住吧?
-            } else if (staDist < -0.3 && !StationManager.Arrived) {
-                return 5; // 好像要冲标了，赶紧停车
-            }/* else if (staDist < 500 && !StationManager.Arrived) {
+            if (!StationManager.NextStation.Pass)
+            {
+                if (staDist < 0.9 && !StationManager.Arrived)
+                {
+                    return 2; // 这大概停得住吧?
+                }
+                else if (staDist < -0.3 && !StationManager.Arrived)
+                {
+                    return 5; // 好像要冲标了，赶紧停车
+                }/* else if (staDist < 500 && !StationManager.Arrived) {
                 return Math.Max(decelB,decelA);
-            } */else if (staDist > 20 && recSpeed < 3) {
-                return 2; // 到移动授权终点了?
-            } else {
+            } */else if (staDist > 20 && recSpeed < 3)
+                {
+                    return 2; // 到移动授权终点了?
+                }
+                else
+                {
+                    return decelB;
+                }
+            }
+            else
+            {
                 return decelB;
             }
         }

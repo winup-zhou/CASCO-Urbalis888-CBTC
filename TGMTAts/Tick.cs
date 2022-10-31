@@ -19,6 +19,11 @@ namespace TGMTAts {
         public static AtsHandles Elapse(AtsVehicleState state, IntPtr hPanel, IntPtr hSound) {
             var panel = new AtsIoArray(hPanel);
             var sound = new AtsIoArray(hSound);
+            if (!pluginReady)
+            {
+                Messages.Add(new Tuple<int, int, int>(state.Time, 1, 0));
+                Messages.Add(new Tuple<int, int, int>(state.Time, 2, 0));
+            }
             pluginReady = true;
             ackMessage = 0;
             location = state.Location;
@@ -28,6 +33,7 @@ namespace TGMTAts {
                 Reverser = pReverser, ConstantSpeed = AtsCscInstruction.Continue };
 
             double ebSpeed = 0, recommendSpeed = 0, targetSpeed = 0, targetDistance = 0;
+            double recommendSpeed_on_dmi = 0;
             trackLimit.Update(location);
             StationManager.Update(state, doorOpen);
 
@@ -84,6 +90,8 @@ namespace TGMTAts {
                 ebSpeed = Math.Min(Config.MaxSpeed, Math.Max(0, maximumCurve.CurrentTarget));
                 recommendSpeed = Math.Min(ebSpeed - Config.RecommendSpeedOffset, 
                     Math.Max(0, recommendCurve.CurrentTarget));
+                recommendSpeed_on_dmi = recommendCurve.NextLimit.Location == StationManager.NextStation.StopPosition ? Math.Max(recommendCurve.CurrentTarget, ebSpeed - Config.RecommendSpeedOffset) : Math.Min(ebSpeed - Config.RecommendSpeedOffset,
+                    Math.Max(0, recommendCurve.CurrentTarget));
                 nextLimit = targetCurve.NextLimit;
                 targetDistance = targetCurve.NextLimit.Location - location;
                 targetSpeed = targetCurve.NextLimit.Limit;
@@ -137,7 +145,7 @@ namespace TGMTAts {
                 panel[16] = -1;
             }
             if (driveMode < 2) {
-                panel[15] = (int)(recommendSpeed * speedMultiplier);
+                panel[15] = (int)(recommendSpeed_on_dmi * speedMultiplier);
             } else {
                 panel[15] = -1;
             }
@@ -245,7 +253,7 @@ namespace TGMTAts {
                         panel[29] = 2;
                         sound[0] = sound[0] == 0 ? -10000 : 1;
                         handles.Brake = vehicleSpec.BrakeNotches + 1;
-                    } else if (driveMode == 1 && state.Speed > recommendSpeed + 1.5) {
+                    } else if (driveMode == 1 && state.Speed > recommendSpeed_on_dmi + 1.5) {
                         // 超出建议速度，显示警告
                         panel[10] = 1;
                         sound[0] = 0;
@@ -389,7 +397,7 @@ namespace TGMTAts {
                 }
             }
 
-            if (StationManager.NextStation.Pass && Math.Abs(StationManager.NextStation.StopPosition - location) < Config.StationStartDistance * 2) panel[31] = 1;
+            if (StationManager.NextStation.Pass && Math.Abs(StationManager.NextStation.StopPosition - location) < Config.StationStartDistance + 200) panel[31] = 1;
 
             //手动EB,只能停车后缓解
             if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed != 0) ebState = 1;

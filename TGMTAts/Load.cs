@@ -17,9 +17,11 @@ namespace TGMTAts {
 
         public static List<string> debugMessages = new List<string>();
 
-        /*
-          // 卡斯柯特有的信息提示栏 类型：时间 信息
+        // 卡斯柯特有的信息提示栏 类型：时间 信息 优先级
         public static List<Tuple<int, int, int>> Messages = new List<Tuple<int, int, int>>();
+
+        /*
+          
         
         // 0: (未选择); 1: AM-BM; 2: AM-C;
         public static int selectedMode = 2;
@@ -164,5 +166,6 @@ namespace TGMTAts {
             var sec = time % 60;
             debugMessages.Add(string.Format("{0:D2}:{1:D2}:{2:D2} {3}", hrs, min, sec, msg));
         }
+
 	}
 }

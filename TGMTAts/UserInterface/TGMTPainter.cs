@@ -47,6 +47,7 @@ namespace TGMTAts {
             numn1 = GDI32.LoadImage(Path.Combine(imgDir, "num-1.png"));
             colon = GDI32.LoadImage(Path.Combine(imgDir, "colon.png"));
             alive = GDI32.LoadImage(Path.Combine(imgDir, "alive.png"));
+            message = GDI32.LoadImage(Path.Combine(imgDir, "message.png"));
         }
 
         public static void Dispose() {
@@ -68,8 +69,14 @@ namespace TGMTAts {
             GDI32.DrawImage(fault, 519, 405, panel[30] * 50, 50);
             GDI32.DrawImage(special, 646, 405, panel[31] * 50, 50);
             GDI32.DrawImage(ackcmd, 440, 472, panel[35] * 100, 100);
-            GDI32.DrawImage(atoctrl, 32, 395, panel[21] * 50, 50);
-            GDI32.DrawImage(selmode, 130, 395, panel[22] * 50, 50);
+
+            GDI32.DrawImage(message, 140, 467, 8 * 18, 18);
+            GDI32.DrawImage(message, 140, 493, 8 * 18, 18);
+            GDI32.DrawImage(message, 140, 519, 8 * 18, 18);
+            g800.DrawRectangle(new Pen(Color.FromArgb(191,190,190), 8), new Rectangle(75, 457, 385, 90));
+
+            GDI32.DrawImage(atoctrl, 55, 395, panel[21] * 50, 50);
+            GDI32.DrawImage(selmode, 153, 395, panel[22] * 50, 50);
 
             GDI32.DrawImage(alive, 20, 550, panel[42] * 45, 45);
 
@@ -90,8 +97,8 @@ namespace TGMTAts {
             GDI32.DrawImage(num1, 123, 563, (strYMD[3] - '0') * 13, 13);
             GDI32.DrawImage(num1, 142, 563, (strYMD[4] - '0') * 13, 13);
             GDI32.DrawImage(num1, 152, 563, (strYMD[5] - '0') * 13, 13);
-            GDI32.DrawImage(num1, 171, 563, (strYMD[6] - '0') * 13, 13);
-            GDI32.DrawImage(num1, 181, 563, (strYMD[7] - '0') * 13, 13);
+            GDI32.DrawImage(num1, 172, 563, (strYMD[6] - '0') * 13, 13);
+            GDI32.DrawImage(num1, 182, 563, (strYMD[7] - '0') * 13, 13);
 
             var sec = state.Time / 1000 % 60;
             var min = state.Time / 1000 / 60 % 60;
@@ -107,7 +114,7 @@ namespace TGMTAts {
             g800.FillRectangle(overspeed[panel[10]], new Rectangle(15, 13, 75, 73));
             g800.FillRectangle(targetColor[panel[13] * 1 + panel[14] * 2], new Rectangle(68, 354 - panel[11], 25, panel[11]));
             if (panel[36] != 0 && TGMTAts.time % 1000 < 500) {
-                g800.DrawRectangle(ackPen, new Rectangle(75, 455, 368, 94));
+                g800.DrawRectangle(ackPen, new Rectangle(75, 457, 381, 90));
             }
 
             var tSpeed = ((double)panel[1] / 100 * 288 - 144) / 180 *Math.PI;
@@ -198,10 +205,10 @@ namespace TGMTAts {
         static Pen circlePenOrangeRed = new Pen(Color.OrangeRed, 5);
         static Pen circlePenRed = new Pen(Color.Red, 5);
         static Pen ackPen = new Pen(Color.Yellow, 8);
-        static Brush[] targetColor = new Brush[] { new SolidBrush(Color.Red), new SolidBrush(Color.Yellow), new SolidBrush(Color.Green) };
+        static Brush[] targetColor = new Brush[] { new SolidBrush(Color.Red), new SolidBrush(Color.Orange), new SolidBrush(Color.Green) };
         static Brush[] overspeed = new Brush[] { new SolidBrush(Color.Empty), new SolidBrush(Color.OrangeRed), new SolidBrush(Color.Red)};
         static Brush[] targetspeedshow = new Brush[] { new SolidBrush(Color.Empty), new SolidBrush(Color.FromArgb(2, 17, 33)) };
         static int hmi, ackcmd, atoctrl, dormode, dorrel, drvmode, emergency, fault, departure, menu,
-            selmode, sigmode, special, stopsig, num0, numn0, colon, alive, numn1, num1;
+            selmode, sigmode, special, stopsig, num0, numn0, colon, alive, numn1, num1, message;
     }
 }
