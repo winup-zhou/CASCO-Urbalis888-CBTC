@@ -550,6 +550,7 @@ namespace TGMTAts {
                 {
                     Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
                     Messages.RemoveAt(Messages.Count - 2);
+                    sound[1] = -10000;
                     panel[60] = 0;
                 }
 
