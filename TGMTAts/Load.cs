@@ -157,6 +157,7 @@ namespace TGMTAts {
             if (debugWindow != null) debugWindow.Close();
             TGMTPainter.Dispose();
             TextureManager.Dispose();
+            Messages.Clear();
         }
 
         public static void Log(string msg) {

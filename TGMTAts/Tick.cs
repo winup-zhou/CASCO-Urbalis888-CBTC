@@ -21,13 +21,14 @@ namespace TGMTAts {
             var sound = new AtsIoArray(hSound);
             if (!pluginReady)
             {
-                Messages.Add(new Tuple<int, int, int>(state.Time, 1, 0));
-                Messages.Add(new Tuple<int, int, int>(state.Time, 2, 0));
+                Messages.Add(new Tuple<int, int, int>(state.Time, 12, 0));
+                Messages.Add(new Tuple<int, int, int>(state.Time, 13, 0));
             }
             pluginReady = true;
             ackMessage = 0;
             location = state.Location;
             time = state.Time;
+            int msgpos = 3;
 
             var handles = new AtsHandles { Power = pPower, Brake = pBrake,
                 Reverser = pReverser, ConstantSpeed = AtsCscInstruction.Continue };
@@ -122,7 +123,7 @@ namespace TGMTAts {
             }
             if (selectingMode >= 0) {
                 ackMessage = 4;
-                panel[22] = time % 500 < 250 ? selectingMode : 6;
+                panel[22] = time % 1000 < 500 ? selectingMode : 6;
             }
 
             // 显示目标速度、建议速度、干预速度
@@ -145,7 +146,7 @@ namespace TGMTAts {
                 panel[16] = -1;
             }
             if (driveMode < 2) {
-                panel[15] = (int)(recommendSpeed_on_dmi * speedMultiplier);
+                panel[15] = driveMode == 0 ? -1 :(int)(recommendSpeed_on_dmi * speedMultiplier);
             } else {
                 panel[15] = -1;
             }
@@ -218,7 +219,7 @@ namespace TGMTAts {
                     panel[21] = 0;
                     if (Ato.IsAvailable()) {
                         // 闪烁
-                        panel[40] = time % 500 < 250 ? 1 : 0;
+                        panel[40] = time % 1000 < 500 ? 1 : 0;
                     }
                 }
             }
@@ -240,6 +241,7 @@ namespace TGMTAts {
                     panel[10] = 0;
                 } else if (state.Speed > ebSpeed) {
                     // 超出制动干预速度
+                    if(ebState == 0)Messages.Add(new Tuple<int, int, int>(state.Time, 5, 1));
                     ebState = 2;
                     if (driveMode > 1) driveMode = 1;
                     panel[10] = 2;
@@ -268,6 +270,7 @@ namespace TGMTAts {
                     // 停稳后降级到RM模式。等待确认。
                     ackMessage = 6;
                 }
+                if (ebState == 0) Messages.Add(new Tuple<int, int, int>(state.Time, 9, 1));
                 ebState = 2;
                 // 显示紧急制动、目标距离0、速度0
                 panel[10] = 2;
@@ -306,7 +309,7 @@ namespace TGMTAts {
             if (releaseSpeed) panel[31] = 3;
             if (ackMessage > 0) {
                 panel[35] = ackMessage;
-                panel[36] = ((state.Time / 1000) % 0.5 < 0.25) ? 1 : 0;
+                panel[36] = ((state.Time / 1000) % 1 < 0.5) ? 1 : 0;
             } else {
                 panel[35] = panel[36] = 0;
             }
@@ -349,7 +352,7 @@ namespace TGMTAts {
                 if (StationManager.NextStation.DepartureTime < 0.1) panel[102] = 0;
                 if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.StationStartDistance) {
                     // 在车站范围内
-                    if (!StationManager.NextStation.Pass && Math.Abs(StationManager.NextStation.StopPosition - location) > Config.StationStartDistance - 50) panel[29] = 4;
+                    if (signalMode == 2&&!StationManager.NextStation.Pass && Math.Abs(StationManager.NextStation.StopPosition - location) > Config.StationStartDistance - 50) panel[29] = 4;
                     if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.DoorEnableWindow) {
                         // 在停车窗口内
                         if (state.Speed < 1) {
@@ -447,6 +450,83 @@ namespace TGMTAts {
                 }
             }
 
+            //信息提示栏
+            if (Messages.Count == 1)
+            {
+                panel[55] = 11;
+                panel[56] = 11;
+                panel[57] = 11;
+                panel[58] = 11;
+                panel[59] = 0;
+                panel[50] = 11;
+                panel[51] = 11;
+                panel[52] = 11;
+                panel[53] = 11;
+                panel[54] = 0;
+                panel[45] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
+                panel[46] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
+                panel[47] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
+                panel[48] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
+                panel[49] = Messages[0].Item2;
+            }
+            else if (Messages.Count == 2)
+            {
+                panel[55] = 11;
+                panel[56] = 11;
+                panel[57] = 11;
+                panel[58] = 11;
+                panel[59] = 0;
+                panel[50] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
+                panel[51] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
+                panel[52] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
+                panel[53] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
+                panel[54] = Messages[0].Item2;
+                panel[45] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
+                panel[46] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
+                panel[47] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
+                panel[48] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
+                panel[49] = Messages[1].Item2;
+            }
+            else if (Messages.Count == 3)
+            {
+                panel[55] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
+                panel[56] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
+                panel[57] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
+                panel[58] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
+                panel[59] = Messages[0].Item2;
+                panel[50] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
+                panel[51] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
+                panel[52] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
+                panel[53] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
+                panel[54] = Messages[1].Item2;
+                panel[45] = D(Messages[2].Item1 / 1000 / 3600 % 60, 1);
+                panel[46] = D(Messages[2].Item1 / 1000 / 3600 % 60, 0);
+                panel[47] = D(Messages[2].Item1 / 1000 / 60 % 60, 1);
+                panel[48] = D(Messages[2].Item1 / 1000 / 60 % 60, 0);
+                panel[49] = Messages[2].Item2;
+            }
+
+            else
+            {
+                if (msgpos > Messages.Count - 1) msgpos = Messages.Count - 1;
+                msgpos = Messages.Count - 1;
+                panel[55] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 1);
+                panel[56] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 0);
+                panel[57] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 1);
+                panel[58] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 0);
+                panel[59] = Messages[msgpos - 2].Item2;
+                panel[50] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 1);
+                panel[51] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 0);
+                panel[52] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 1);
+                panel[53] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 0);
+                panel[54] = Messages[msgpos - 1].Item2;
+                panel[45] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 1);
+                panel[46] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 0);
+                panel[47] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 1);
+                panel[48] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 0);
+                panel[49] = Messages[msgpos].Item2;
+            }
+
             // 刷新HMI, TDT, 信号机材质，为了减少对FPS影响把它限制到最多一秒10次
             if (lastDrawTime > state.Time) lastDrawTime = 0;
             if (state.Time - lastDrawTime > 100) {
@@ -516,6 +596,24 @@ namespace TGMTAts {
                 }
             } else {
                 panel[12] = 0; panel[13] = 0; panel[14] = 1;
+            }
+        }
+
+        private static int[] pow10 = new int[] { 1, 10, 100, 1000 };
+
+        private static int D(int src, int digit)
+        {
+            if (pow10[digit] > src)
+            {
+                return 10;
+            }
+            else if (digit == 0 && src == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return src / pow10[digit] % 10;
             }
         }
     }

@@ -101,21 +101,16 @@ namespace TGMTAts {
         }
 
         public static SpeedLimit CTCEndpoint() {
-            if (NextStation.Pass)
+
+            if (TGMTAts.time > NextStation.RouteOpenTime)
             {
                 return SpeedLimit.inf;
             }
             else
             {
-                if (TGMTAts.time > NextStation.RouteOpenTime)
-                {
-                    return SpeedLimit.inf;
-                }
-                else
-                {
-                    return new SpeedLimit(0, NextStation.StopPosition + Config.StationMotionEndpoint);
-                }
+                return new SpeedLimit(0, NextStation.StopPosition + Config.StationMotionEndpoint);
             }
+            
         }
     }
 }
