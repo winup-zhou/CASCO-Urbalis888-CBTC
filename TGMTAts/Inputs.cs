@@ -73,7 +73,9 @@ namespace TGMTAts{
                     trackLimit.SetBeacon(data);
                     break;
                 case 96811:
+                    var lastdeviceCapability = deviceCapability;
                     deviceCapability = data.Optional;
+                    if (lastdeviceCapability == 0 && deviceCapability > 0) ModesAvailable = true;
                     FixIncompatibleModes();
                     break;
                 case 96812:

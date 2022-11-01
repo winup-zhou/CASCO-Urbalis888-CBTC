@@ -48,6 +48,7 @@ namespace TGMTAts {
         public static int signalMode = 2;
         // 1: MM; 2: AM; 3: AA
         public static int doorMode = 1;
+        public static bool ModesAvailable = false;
         // 0: 没有CTC,ITC; 1: 没有CTC; 2: 正常
         public static int deviceCapability = 2;
 

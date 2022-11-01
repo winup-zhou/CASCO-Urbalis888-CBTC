@@ -45,7 +45,7 @@ namespace TGMTAts {
             numn0 = GDI32.LoadImage(Path.Combine(imgDir, "num-0.png"));
             num1 = GDI32.LoadImage(Path.Combine(imgDir, "num1.png"));
             numn1 = GDI32.LoadImage(Path.Combine(imgDir, "num-1.png"));
-            colon = GDI32.LoadImage(Path.Combine(imgDir, "colon.png"));
+            latestmsg = GDI32.LoadImage(Path.Combine(imgDir, "latestmsg.png"));
             alive = GDI32.LoadImage(Path.Combine(imgDir, "alive.png"));
             message = GDI32.LoadImage(Path.Combine(imgDir, "message.png"));
         }
@@ -68,24 +68,27 @@ namespace TGMTAts {
             GDI32.DrawImage(emergency, 646, 337, panel[29] * 50, 50);
             GDI32.DrawImage(fault, 519, 405, panel[30] * 50, 50);
             GDI32.DrawImage(special, 646, 405, panel[31] * 50, 50);
-            GDI32.DrawImage(ackcmd, 460, 472, panel[35] * 100, 100);
 
+            g800.DrawRectangle(ackPen, new Rectangle(472, 455, 280, 120));
+            GDI32.DrawImage(ackcmd, 472, 453, panel[35] * 100, 100);
+
+            GDI32.DrawImage(latestmsg, 52, 465, panel[60] * 18, 18);
             GDI32.DrawImage(message, 138, 467, panel[49] * 18, 18);
             GDI32.DrawImage(message, 138, 493, panel[54] * 18, 18);
             GDI32.DrawImage(message, 138, 519, panel[59] * 18, 18);
             GDI32.DrawImage(num1, 86, 469, panel[45] * 13, 13);
             GDI32.DrawImage(num1, 96, 469, panel[46] * 13, 13);
-            g800.FillRectangle(colonshow[panel[49]], new Rectangle(106, 470, 5, 13));
+            g800.FillRectangle(colonshow[panel[46]], new Rectangle(106, 470, 5, 13));
             GDI32.DrawImage(num1, 111, 469, panel[47] * 13, 13);
             GDI32.DrawImage(num1, 121, 469, panel[48] * 13, 13);
             GDI32.DrawImage(num1, 86, 495, panel[50] * 13, 13);
             GDI32.DrawImage(num1, 96, 495, panel[51] * 13, 13);
-            g800.FillRectangle(colonshow[panel[54]], new Rectangle(106, 496, 5, 13));
+            g800.FillRectangle(colonshow[panel[51]], new Rectangle(106, 496, 5, 13));
             GDI32.DrawImage(num1, 111, 495, panel[52] * 13, 13);
             GDI32.DrawImage(num1, 121, 495, panel[53] * 13, 13);
             GDI32.DrawImage(num1, 86, 521, panel[55] * 13, 13);
             GDI32.DrawImage(num1, 96, 521, panel[56] * 13, 13);
-            g800.FillRectangle(colonshow[panel[59]], new Rectangle(106, 522, 5, 13));
+            g800.FillRectangle(colonshow[panel[56]], new Rectangle(106, 522, 5, 13));
             GDI32.DrawImage(num1, 111, 521, panel[57] * 13, 13);
             GDI32.DrawImage(num1, 121, 521, panel[58] * 13, 13);
 
@@ -128,12 +131,12 @@ namespace TGMTAts {
             g800.FillRectangle(overspeed[panel[10]], new Rectangle(15, 13, 75, 73));
             g800.FillRectangle(targetColor[panel[13] * 1 + panel[14] * 2], new Rectangle(68, 354 - panel[11], 25, panel[11]));
             if (panel[36] != 0) {
-                if (TGMTAts.time % 1000 < 500) g800.DrawRectangle(ackPenYellow, new Rectangle(75, 457, 385, 90));
-                else g800.DrawRectangle(ackPenBlack, new Rectangle(75, 457, 385, 90));
+                if (TGMTAts.time % 1000 < 500) g800.DrawRectangle(msgPenYellow, new Rectangle(75, 457, 385, 90));
+                else g800.DrawRectangle(msgPenBlack, new Rectangle(75, 457, 385, 90));
             }
             else
             {
-                g800.DrawRectangle(new Pen(Color.FromArgb(191, 190, 190), 8), new Rectangle(75, 457, 385, 90));
+                g800.DrawRectangle(msgPenNull, new Rectangle(75, 457, 385, 90));
             }
 
             var tSpeed = ((double)panel[1] / 100 * 288 - 144) / 180 *Math.PI;
@@ -223,17 +226,17 @@ namespace TGMTAts {
         static Pen circlePenWhite = new Pen(Color.White, 5);
         static Pen circlePenOrangeRed = new Pen(Color.OrangeRed, 5);
         static Pen circlePenRed = new Pen(Color.Red, 5);
-        static Pen ackPenYellow = new Pen(Color.Yellow, 8);
-        static Pen ackPenBlack = new Pen(Color.Black , 8);
-        static Pen ackPenNull = new Pen(Color.Empty, 8);
+        static Pen ackPen = new Pen(Color.Yellow, 4);
+        static Pen msgPenYellow = new Pen(Color.Yellow, 8);
+        static Pen msgPenBlack = new Pen(Color.Black , 8);
+        static Pen msgPenNull = new Pen(Color.FromArgb(191, 190, 190), 8);
         static Brush[] targetColor = new Brush[] { new SolidBrush(Color.Red), new SolidBrush(Color.Orange), new SolidBrush(Color.Green) };
         static Brush[] overspeed = new Brush[] { new SolidBrush(Color.Empty), new SolidBrush(Color.OrangeRed), new SolidBrush(Color.Red)};
         static Brush[] targetspeedshow = new Brush[] { new SolidBrush(Color.Empty), new SolidBrush(Color.FromArgb(2, 17, 33)) };
-        static Brush[] colonshow = new Brush[] { new SolidBrush(Color.FromArgb(2, 17, 33)), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty),
+        static Brush[] colonshow = new Brush[] { new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty),
             new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty),
-            new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty),
-            new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty) };
+            new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.FromArgb(2, 17, 33))};
         static int hmi, ackcmd, atoctrl, dormode, dorrel, drvmode, emergency, fault, departure, menu,
-            selmode, sigmode, special, stopsig, num0, numn0, colon, alive, numn1, num1, message;
+            selmode, sigmode, special, stopsig, num0, numn0, latestmsg, alive, numn1, num1, message;
     }
 }
