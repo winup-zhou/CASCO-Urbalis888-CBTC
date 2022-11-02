@@ -6,9 +6,13 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Linq;
 using System.Reflection;
+using Zbx1425.DXDynamicTexture;
 
 namespace TGMTAts {
 	public static partial class TGMTAts {
+
+        public static TouchTextureHandle HmiTexture;
+        public static TextureHandle TdtTexture;
 
         public static int[] panel = new int[256];
         public static bool doorOpen;
@@ -19,6 +23,7 @@ namespace TGMTAts {
 
         // 卡斯柯特有的信息提示栏 类型：时间 信息 优先级
         public static List<Tuple<int, int, int>> Messages = new List<Tuple<int, int, int>>();
+        public static int msgpos = 2;
 
         /*
           
@@ -49,12 +54,17 @@ namespace TGMTAts {
         // 1: MM; 2: AM; 3: AA
         public static int doorMode = 1;
         public static bool ModesAvailable = false;
+        public static bool Positioned = false;
         // 0: 没有CTC,ITC; 1: 没有CTC; 2: 正常
         public static int deviceCapability = 2;
 
         // 暂时的预选速度，-1表示没有在预选
         public static int selectingMode = -1;
         public static int selectModeStartTime = 0;
+
+        //按钮是否可以被点按？
+        public static bool upbuttonClickable = false;
+        public static bool downbuttonClickable = false;
 
         public static int ebState = 0;
         public static bool releaseSpeed = false;
@@ -89,15 +99,27 @@ namespace TGMTAts {
                 }).Start();
             }
 
-            Zbx1425.DXDynamicTexture.TextureManager.Initialize();
+            TextureManager.Initialize();
 
             harmony = new HarmonyLib.Harmony("cn.zbx1425.bve.trainguardmt");
             try {
-                TextureManager.ApplyPatch();
+                HmiTexture = TouchManager.Register(Config.HMIImageSuffix,1024,1024);
+                TdtTexture = TextureManager.Register(Config.TDTImageSuffix,32,32);
+                var imgDir = Config.ImageAssetPath;
+                TouchManager.EnableEvent(MouseButtons.Left, TouchManager.EventType.Down);
+                HmiTexture.SetClickableArea(470, 0, 290, 600);
+                /*upbutton_ = TouchManager.Register(Path.Combine(imgDir, "upbutton_for_click.png"), 64, 64);
+                upbutton_.SetClickableArea(0, 0, 50, 61);*/
+                HmiTexture.MouseDown += HmiTex_MouseDown;
+                /*downbutton_ = TouchManager.Register(Path.Combine(imgDir, "downbutton_for_click.png"), 64, 64);*/
+                
+
+                //TextureManager.ApplyPatch();
                 TGMTPainter.Initialize();
             } catch (Exception ex) {
                MessageBox.Show(ex.ToString());
             }
+
         }
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
@@ -161,13 +183,30 @@ namespace TGMTAts {
             Messages.Clear();
         }
 
-        public static void Log(string msg) {
+        public static void Log(string msg)
+        {
             time /= 1000;
             var hrs = time / 3600 % 60;
             var min = time / 60 % 60;
             var sec = time % 60;
             debugMessages.Add(string.Format("{0:D2}:{1:D2}:{2:D2} {3}", hrs, min, sec, msg));
         }
+        private static void HmiTex_MouseDown(object sender, TouchEventArgs e)
+        {
+            //0 450 50 510
+            if (e.X >= 0 && e.X <= 50)
+            {
+                if (e.Y >= 450 && e.Y <= 510) {
+                    if (upbuttonClickable)
+                        msgpos += 1;
+                }
+                else if (e.Y >= 520 && e.Y <= 580) {
+                    if (downbuttonClickable)
+                        msgpos -= 1;
+                }
+            }
+            //MessageBox.Show(String.Format("X: {0}, Y: {1}", e.X, e.Y));
+        }
 
-	}
+    }
 }

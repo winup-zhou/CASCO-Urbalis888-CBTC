@@ -12,7 +12,7 @@ namespace TGMTAts {
 
     // SlimDX methods are called with reflection, to avoid direct reference to SlimDX.dll
 
-    class TextureManager {
+    /*class TextureManager {
 
         public static Texture HmiTexture, TdtTexture, SignalTexture;
 
@@ -64,5 +64,5 @@ namespace TGMTAts {
             bmp.UnlockBits(bmpData);
             texture.UnlockRectangle(0);
         }
-    }
+    }*/
 }

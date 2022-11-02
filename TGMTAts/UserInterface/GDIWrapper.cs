@@ -12,7 +12,7 @@ using System.Security;
 using System.Text;
 
 namespace TGMTAts {
-
+    /*
     static class GDI32 {
         // Rectangle
         [DllImport("gdi32")]
@@ -140,11 +140,11 @@ namespace TGMTAts {
             DeleteDC(tgtmemdcPtr);
             DeleteDC(mskmemdcPtr);
         }*/
-
-        public static void FreeImage() {
-            foreach (PreStoragedHBitmap Current in Images)
-                DeleteObject(Current.ptr);
-        }
+    /*
+    public static void FreeImage() {
+        foreach (PreStoragedHBitmap Current in Images)
+            DeleteObject(Current.ptr);
     }
+}*/
 
 }

@@ -30,7 +30,6 @@ namespace TGMTAts {
             ackMessage = 0;
             location = state.Location;
             time = state.Time;
-            int msgpos = 3;
 
             var handles = new AtsHandles { Power = pPower, Brake = pBrake,
                 Reverser = pReverser, ConstantSpeed = AtsCscInstruction.Continue };
@@ -195,7 +194,7 @@ namespace TGMTAts {
             }
 
             // 如果没有无线电，显示无线电故障
-            panel[23] = state.Speed == 0 ? 0 : 1;
+            panel[23] = driveMode == 0 ? 1 : 0;
             panel[30] = deviceCapability != 2 ? 1 : 0;
 
             // ATO
@@ -467,10 +466,14 @@ namespace TGMTAts {
                 }
             }
 
+            if (msgpos > Messages.Count - 1) msgpos = Messages.Count - 1;
+            if (msgpos < 2) msgpos = 2;
+
             //信息提示栏
             if (Messages[Messages.Count - 1].Item3 == 1)
             {
-
+                upbuttonClickable = false;
+                downbuttonClickable = false;
                 if (Messages.Count == 1)
                 {
                     panel[55] = 11;
@@ -557,6 +560,8 @@ namespace TGMTAts {
             }
             else if (Messages[Messages.Count - 1].Item3 == 2)
             {
+                upbuttonClickable = false;
+                downbuttonClickable = false;
                 panel[36] = 1;
                 panel[55] = 11;
                 panel[56] = 11;
@@ -641,7 +646,6 @@ namespace TGMTAts {
 
                 else
                 {
-                    if (msgpos > Messages.Count - 1) msgpos = Messages.Count - 1;
                     panel[55] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 1);
                     panel[56] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 0);
                     panel[57] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 1);
@@ -657,6 +661,18 @@ namespace TGMTAts {
                     panel[47] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 1);
                     panel[48] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 0);
                     panel[49] = Messages[msgpos].Item2;
+                    if (Messages.Count < 3)
+                    {
+                        upbuttonClickable = false;
+                        downbuttonClickable = false;
+                    }
+                    else
+                    {
+                        if (msgpos > Messages.Count - 1) upbuttonClickable = false;
+                        else upbuttonClickable = true;
+                        if (msgpos < 2) downbuttonClickable = false;
+                        else downbuttonClickable = true;
+                    }
                 }
             }
 
@@ -668,8 +684,10 @@ namespace TGMTAts {
                 lastDrawTime = state.Time;
                 panel[42] += 1;
                 panel[42] %= 12;
-                TextureManager.UpdateTexture(TextureManager.HmiTexture, TGMTPainter.PaintHMI(panel, state));
-                TextureManager.UpdateTexture(TextureManager.TdtTexture, TGMTPainter.PaintTDT(panel, state));
+                TGMTPainter.PaintHMI(panel, state);
+                TGMTPainter.PaintTDT(panel, state);
+                //TextureManager.UpdateTexture(TextureManager.HmiTexture, TGMTPainter.PaintHMI(panel, state));
+                //TextureManager.UpdateTexture(TextureManager.TdtTexture, TGMTPainter.PaintTDT(panel, state));
             }
             return handles;
         }
