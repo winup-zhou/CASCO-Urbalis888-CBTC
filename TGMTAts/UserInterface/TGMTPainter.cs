@@ -29,7 +29,7 @@ namespace TGMTAts {
             new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty),
             new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.FromArgb(2, 17, 33))};
         private static Bitmap hmi, ackcmd, atoctrl, dormode, dorrel, drvmode, emergency, fault, departure, menu,
-            selmode, sigmode, special, stopsig, num0, numn0, latestmsg, alive, numn1, num1, message, upbutton, downbutton;
+            selmode, sigmode, special, stopsig, num0, numn0, latestmsg, alive, numn1, num1, message, upbutton, downbutton ,tdt_dmi;
         private static Bitmap bmp800, bmp1024, bmptdt;
         private static GDIHelper g800, g1024, gtdt;
 
@@ -69,6 +69,8 @@ namespace TGMTAts {
 
             upbutton = new Bitmap(Path.Combine(imgDir, "upbutton_for_click.png"));
             downbutton = new Bitmap(Path.Combine(imgDir, "downbutton_for_click.png"));
+
+            tdt_dmi = new Bitmap(Path.Combine(imgDir, "TDT_DMI.png"));
         }
 
         public static void Dispose() {
@@ -87,15 +89,20 @@ namespace TGMTAts {
                 g800.DrawImage(hmi, 0, 0, panel[43] * 600, 730);
 
                 g800.DrawImage(menu, 526, 522, panel[23] * 61, 61);
+
+                g800.DrawImage(tdt_dmi, 519, 73, 1 * 50, 50);
+                g800.DrawImage(numn0, 690, 88, 0 * 18, 18);
+                g800.DrawImage(numn0, 676, 88, 0 * 18, 18);
+
                 g800.DrawImage(drvmode, 519, 130, panel[24] * 50, 50);
                 g800.DrawImage(sigmode, 646, 130, panel[25] * 50, 50);
-                g800.DrawImage(stopsig, 646, 197, panel[26] * 50, 50);
-                g800.DrawImage(dorrel, 519, 264, panel[27] * 50, 50);
-                g800.DrawImage(dormode, 519, 334, panel[28] * 50, 50);
-                g800.DrawImage(departure, 646, 264, panel[32] * 50, 50);
-                g800.DrawImage(emergency, 646, 334, panel[29] * 50, 50);
-                g800.DrawImage(fault, 519, 402, panel[30] * 50, 50);
-                g800.DrawImage(special, 646, 402, panel[31] * 50, 50);
+                g800.DrawImage(stopsig, 646, 196, panel[26] * 50, 50);
+                g800.DrawImage(dorrel, 519, 263, panel[27] * 50, 50);
+                g800.DrawImage(dormode, 519, 333, panel[28] * 50, 50);
+                g800.DrawImage(departure, 646, 263, panel[32] * 50, 50);
+                g800.DrawImage(emergency, 646, 333, panel[29] * 50, 50);
+                g800.DrawImage(fault, 519, 401, panel[30] * 50, 50);
+                g800.DrawImage(special, 646, 401, panel[31] * 50, 50);
                 //g800.DrawImage(ackcmd, 472, 453, panel[35] * 100, 100);
 
                 g800.DrawImage(latestmsg, 52, 465, panel[60] * 18, 18);
@@ -133,23 +140,12 @@ namespace TGMTAts {
 
                 if (TGMTAts.upbuttonClickable)
                 {
-                    g800.DrawImage(upbutton, 470, 455, 0, 61);
-                }
-                else
-                {
-                    g800.EndGDI();
-                    g800.Graphics.FillRectangle(new SolidBrush(Color.Empty), new Rectangle(470, 455, 50, 61));
-                    g800.BeginGDI();
+                    g800.DrawImage(upbutton, 470, 453, 0, 61);
                 }
 
                 if (TGMTAts.downbuttonClickable)
                 {
-                    g800.DrawImage(downbutton, 470, 523, 0, 61);
-                }else
-                {
-                    g800.EndGDI();
-                    g800.Graphics.FillRectangle(new SolidBrush(Color.Empty), new Rectangle(470, 523, 50, 61));
-                    g800.BeginGDI();
+                    g800.DrawImage(downbutton, 470, 521, 0, 61);
                 }
 
                 string strYMD = System.Text.RegularExpressions.Regex.Replace(DateTime.Now.ToString("yyyyMMdd"), "[^\\d]", "");
@@ -173,7 +169,7 @@ namespace TGMTAts {
                 g800.DrawImage(num1, 265, 563, D(sec, 0) * 13, 13);
                 g800.EndGDI();
 
-                g800.Graphics.DrawRectangle(ackPen, new Rectangle(472, 455, 280, 125));
+                //g800.Graphics.DrawRectangle(ackPen, new Rectangle(472, 455, 280, 125));
                 g800.Graphics.FillRectangle(colonshow[panel[46]], new Rectangle(106, 470, 5, 13));
                 g800.Graphics.FillRectangle(colonshow[panel[51]], new Rectangle(106, 496, 5, 13));
                 g800.Graphics.FillRectangle(colonshow[panel[56]], new Rectangle(106, 522, 5, 13));

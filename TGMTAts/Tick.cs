@@ -646,6 +646,8 @@ namespace TGMTAts {
 
                 else
                 {
+                    panel[36] = 0;
+                    panel[60] = 0;
                     panel[55] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 1);
                     panel[56] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 0);
                     panel[57] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 1);
