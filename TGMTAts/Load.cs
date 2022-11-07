@@ -205,7 +205,7 @@ namespace TGMTAts {
                         msgpos -= 1;
                 }
             }
-            //MessageBox.Show(String.Format("X: {0}, Y: {1}", e.X, e.Y));
+            MessageBox.Show(String.Format("X: {0}, Y: {1}", e.X, e.Y));
         }
 
     }

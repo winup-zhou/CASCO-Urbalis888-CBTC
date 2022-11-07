@@ -90,19 +90,45 @@ namespace TGMTAts {
 
                 g800.DrawImage(menu, 526, 522, panel[23] * 61, 61);
 
-                g800.DrawImage(tdt_dmi, 519, 73, 1 * 50, 50);
-                g800.DrawImage(numn0, 690, 88, 0 * 18, 18);
-                g800.DrawImage(numn0, 676, 88, 0 * 18, 18);
 
-                g800.DrawImage(drvmode, 519, 130, panel[24] * 50, 50);
-                g800.DrawImage(sigmode, 646, 130, panel[25] * 50, 50);
-                g800.DrawImage(stopsig, 646, 196, panel[26] * 50, 50);
-                g800.DrawImage(dorrel, 519, 263, panel[27] * 50, 50);
-                g800.DrawImage(dormode, 519, 333, panel[28] * 50, 50);
-                g800.DrawImage(departure, 646, 263, panel[32] * 50, 50);
-                g800.DrawImage(emergency, 646, 333, panel[29] * 50, 50);
-                g800.DrawImage(fault, 519, 401, panel[30] * 50, 50);
-                g800.DrawImage(special, 646, 401, panel[31] * 50, 50);
+                if (Math.Abs(StationManager.NextStation.StopPosition - state.Location) < Config.DoorEnableWindow && TGMTAts.signalMode == 2 && state.Speed < 1)
+                {
+                    int sectogo = Convert.ToInt32((state.Time - StationManager.NextStation.DepartureTime) / 1000);
+                    g800.DrawImage(tdt_dmi, 519, 72, 1 * 50, 50);
+                    if(sectogo < -99)
+                    {
+                        g800.DrawImage(numn0, 690, 87, (state.Time % 1000 < 500 ? 9 : 10) * 18, 18);
+                        g800.DrawImage(numn0, 676, 87, (state.Time % 1000 < 500 ? 9 : 10) * 18, 18);
+                    }
+                    else if (sectogo > -1)
+                    {
+                        g800.DrawImage(numn0, 690, 87, (state.Time % 1000 < 500 ? 0 : 10) * 18, 18);
+                        g800.DrawImage(numn0, 676, 87, 10 * 18, 18);
+                    }
+                    else
+                    {
+                        g800.DrawImage(numn0, 690, 87, D(-sectogo, 0) * 18, 18);
+                        g800.DrawImage(numn0, 676, 87, D(-sectogo, 1) * 18, 18);
+                    }
+
+                }
+                else
+                {
+                    g800.DrawImage(tdt_dmi, 519, 72, 0 * 50, 50);
+                    g800.DrawImage(numn0, 690, 87, 10 * 18, 18);
+                    g800.DrawImage(numn0, 676, 87, 10 * 18, 18);
+                }
+                
+
+                g800.DrawImage(drvmode, 519, 129, panel[24] * 50, 50);
+                g800.DrawImage(sigmode, 646, 129, panel[25] * 50, 50);
+                g800.DrawImage(stopsig, 646, 194, panel[26] * 50, 50);
+                g800.DrawImage(dorrel, 519, 260, panel[27] * 50, 50);
+                g800.DrawImage(dormode, 519, 329, panel[28] * 50, 50);
+                g800.DrawImage(departure, 646, 260, panel[32] * 50, 50);
+                g800.DrawImage(emergency, 646, 329, panel[29] * 50, 50);
+                g800.DrawImage(fault, 519, 396, panel[30] * 50, 50);
+                g800.DrawImage(special, 646, 396, panel[31] * 50, 50);
                 //g800.DrawImage(ackcmd, 472, 453, panel[35] * 100, 100);
 
                 g800.DrawImage(latestmsg, 52, 465, panel[60] * 18, 18);
