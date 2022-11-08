@@ -7,11 +7,6 @@
 **编写工作正在进行...**
 
 **TODO list**
-- [x] ATO / ATP 基本动作
-- [x] ATO 跳停
-- [x] 在一定距离内显示目标速度和距离
-- [x] 时间日期显示
-- [x] CASCO Urbalis 特有的部分显示
 - [ ] 各种声音 (~~警告~~ 其他)
 - [ ] 驾驶台上的按钮 (RM1 RM2 BM ATB ~~ATO~~ ATC_BYPASS)
 - [x] DMI TDT 显示

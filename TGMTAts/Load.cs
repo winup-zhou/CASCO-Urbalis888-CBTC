@@ -69,6 +69,10 @@ namespace TGMTAts {
         public static int ebState = 0;
         public static bool releaseSpeed = false;
         public static int ackMessage = 0;
+        public static bool RMstatus = false;
+        public static bool BMstatus = false;
+        public static bool RMsel = false;
+        public static bool BMsel = false;
 
         public static double reverseStartLocation = Config.LessInf;
         
@@ -194,18 +198,63 @@ namespace TGMTAts {
         private static void HmiTex_MouseDown(object sender, TouchEventArgs e)
         {
             //0 450 50 510
-            if (e.X >= 0 && e.X <= 50)
+            //37 505 131 564 158 * 251 * 
+            if (RMsel)
             {
-                if (e.Y >= 450 && e.Y <= 510) {
-                    if (upbuttonClickable)
-                        msgpos += 1;
-                }
-                else if (e.Y >= 520 && e.Y <= 580) {
-                    if (downbuttonClickable)
-                        msgpos -= 1;
+                if (e.Y >= 505 && e.Y <= 564)
+                {
+                    if (e.X >= 37 && e.X <= 131)
+                    {
+                        RMstatus = true;
+                        selectedMode = 0;
+                        ebState = 0;
+                        signalMode = 0;
+                        FixIncompatibleModes();
+                        RMsel = false;
+                    }
+                    else if (e.X >= 158 && e.X <= 251)
+                    {
+                        RMstatus = false;
+                        ebState = 0;
+                        signalMode = 0;
+                        FixIncompatibleModes();
+                        RMsel = false;
+                    }
                 }
             }
-            MessageBox.Show(String.Format("X: {0}, Y: {1}", e.X, e.Y));
+            if (BMsel)
+            {
+                if (e.Y >= 505 && e.Y <= 564)
+                {
+                    if (e.X >= 37 && e.X <= 131)
+                    {
+                        BMstatus = true;
+                        selectedMode = 3;
+                        FixIncompatibleModes();
+                        BMsel = false;
+                    }
+                    else if (e.X >= 158 && e.X <= 251)
+                    {
+                        BMstatus = false;
+                        selectedMode = 4;
+                        FixIncompatibleModes();
+                        BMsel = false;
+                    }
+                }
+            }
+            else if (e.X >= 0 && e.X <= 50)
+            {
+                if (e.Y >= 450 && e.Y <= 510)
+                {
+                    msgpos += 1;
+                }
+                else if (e.Y >= 520 && e.Y <= 580)
+                {
+                    msgpos -= 1;
+                }
+            }
+
+            //MessageBox.Show(String.Format("X: {0}, Y: {1}", e.X, e.Y));
         }
 
     }

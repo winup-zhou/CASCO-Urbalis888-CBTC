@@ -117,14 +117,12 @@
       <DependentUpon>DebugWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Inputs.cs" />
-    <Compile Include="UserInterface\GDIWrapper.cs" />
     <Compile Include="Patterns\CalculatedLimit.cs" />
     <Compile Include="Patterns\SpeedLimit.cs" />
     <Compile Include="Patterns\StationManager.cs" />
     <Compile Include="Patterns\TrackLimit.cs" />
     <Compile Include="Load.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UserInterface\SlimDXPatch.cs" />
     <Compile Include="UserInterface\TGMTPainter.cs" />
     <Compile Include="Tick.cs" />
   </ItemGroup>

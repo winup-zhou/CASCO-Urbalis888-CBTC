@@ -29,7 +29,7 @@ namespace TGMTAts {
             new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty),
             new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.FromArgb(2, 17, 33))};
         private static Bitmap hmi, ackcmd, atoctrl, dormode, dorrel, drvmode, emergency, fault, departure, menu,
-            selmode, sigmode, special, stopsig, num0, numn0, latestmsg, alive, numn1, num1, message, upbutton, downbutton ,tdt_dmi;
+            selmode, sigmode, special, stopsig, num0, numn0, latestmsg, alive, numn1, num1, message, upbutton, downbutton ,tdt_dmi,bmsel,rmsel;
         private static Bitmap bmp800, bmp1024, bmptdt;
         private static GDIHelper g800, g1024, gtdt;
 
@@ -71,6 +71,8 @@ namespace TGMTAts {
             downbutton = new Bitmap(Path.Combine(imgDir, "downbutton_for_click.png"));
 
             tdt_dmi = new Bitmap(Path.Combine(imgDir, "TDT_DMI.png"));
+            bmsel = new Bitmap(Path.Combine(imgDir, "BM_sel_button.png"));
+            rmsel = new Bitmap(Path.Combine(imgDir, "RM_sel_button.png"));
         }
 
         public static void Dispose() {
@@ -95,7 +97,7 @@ namespace TGMTAts {
                 {
                     int sectogo = Convert.ToInt32((state.Time - StationManager.NextStation.DepartureTime) / 1000);
                     g800.DrawImage(tdt_dmi, 519, 72, 1 * 50, 50);
-                    if(sectogo < -99)
+                    if (sectogo < -99)
                     {
                         g800.DrawImage(numn0, 690, 87, (state.Time % 1000 < 500 ? 9 : 10) * 18, 18);
                         g800.DrawImage(numn0, 676, 87, (state.Time % 1000 < 500 ? 9 : 10) * 18, 18);
@@ -118,7 +120,10 @@ namespace TGMTAts {
                     g800.DrawImage(numn0, 690, 87, 10 * 18, 18);
                     g800.DrawImage(numn0, 676, 87, 10 * 18, 18);
                 }
-                
+
+                //列车信息
+
+                //站信息
 
                 g800.DrawImage(drvmode, 519, 129, panel[24] * 50, 50);
                 g800.DrawImage(sigmode, 646, 129, panel[25] * 50, 50);
@@ -164,15 +169,13 @@ namespace TGMTAts {
                 g800.DrawImage(numn0, 268, 229, D((int)state.Speed, 1) * 18, 18);
 
 
-                if (TGMTAts.upbuttonClickable)
-                {
-                    g800.DrawImage(upbutton, 470, 453, 0, 61);
-                }
 
-                if (TGMTAts.downbuttonClickable)
-                {
-                    g800.DrawImage(downbutton, 470, 521, 0, 61);
-                }
+                g800.DrawImage(upbutton, 470, 453, Convert.ToInt32(TGMTAts.upbuttonClickable) * 61, 61);
+                g800.DrawImage(downbutton, 470, 521, Convert.ToInt32(TGMTAts.downbuttonClickable) * 61, 61);
+
+                if(TGMTAts.BMsel) g800.DrawImage(bmsel, 470, 452);
+                if(TGMTAts.RMsel) g800.DrawImage(rmsel, 470, 452);
+
 
                 string strYMD = System.Text.RegularExpressions.Regex.Replace(DateTime.Now.ToString("yyyyMMdd"), "[^\\d]", "");
                 g800.DrawImage(num1, 93, 563, (strYMD[0] - '0') * 13, 13);
@@ -195,7 +198,7 @@ namespace TGMTAts {
                 g800.DrawImage(num1, 265, 563, D(sec, 0) * 13, 13);
                 g800.EndGDI();
 
-                //g800.Graphics.DrawRectangle(ackPen, new Rectangle(472, 455, 280, 125));
+                if ((TGMTAts.RMsel || TGMTAts.BMsel) && state.Time % 1000 < 500) g800.Graphics.DrawRectangle(ackPen, new Rectangle(470, 452, 280, 125));
                 g800.Graphics.FillRectangle(colonshow[panel[46]], new Rectangle(106, 470, 5, 13));
                 g800.Graphics.FillRectangle(colonshow[panel[51]], new Rectangle(106, 496, 5, 13));
                 g800.Graphics.FillRectangle(colonshow[panel[56]], new Rectangle(106, 522, 5, 13));
@@ -252,9 +255,6 @@ namespace TGMTAts {
                     Poc(281, 238, 155, 0, tLimit), Poc(281, 238, 175, -9, tLimit), Poc(281, 238, 175, 9, tLimit)
                 });
                 }
-                /*//按钮交互预留
-
-                 */
                 g800.Graphics.FillRectangle(targetspeedshow[panel[44]], new Rectangle(0, 85, 95, 275));
                 g1024.Graphics.DrawImageUnscaled(g800.Bitmap, 0, 0);
                 TGMTAts.HmiTexture.Update(g1024);

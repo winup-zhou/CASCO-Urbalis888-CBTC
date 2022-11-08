@@ -10,7 +10,7 @@ namespace TGMTAts{
 
         [DllExport(CallingConvention.StdCall)]
         public static void KeyDown(AtsKey key){
-            if (key == AtsKey.B2) {
+           /* if (key == AtsKey.B2) {
                 // End 模式确认
                 switch (ackMessage) {
                     case 2:
@@ -38,25 +38,17 @@ namespace TGMTAts{
                         FixIncompatibleModes();
                         break;
                 }
-            } else if (key == AtsKey.A1 || key == AtsKey.B1) {
+            } else*/ if (key == AtsKey.A1 || key == AtsKey.B1) {
                 // Insert Home ATO启动
                 if (key == AtsKey.A1) a1Down = true;
                 if (key == AtsKey.B1) b1Down = true;
                 if (a1Down && b1Down && Ato.IsAvailable()) {
                     driveMode = 2;
                 }
-            } else if (key == AtsKey.C1) {
-                // PageUp 模式升级
-                if (selectingMode == -1) selectingMode = selectedMode;
-                // TODO: XAM还没做
-                selectingMode = Math.Min(4, Math.Max(0, selectingMode + 1));
-                selectModeStartTime = time;
-            } else if (key == AtsKey.C2) {
-                // PageDown 模式降级
-                if (selectingMode == -1) selectingMode = selectedMode;
-                // TODO: XAM还没做
-                selectingMode = Math.Min(4, Math.Max(0, selectingMode - 1));
-                selectModeStartTime = time;
+            } else if (key == AtsKey.A2) {
+                if(!RMsel&&!BMsel)RMsel = true;
+            } else if (key == AtsKey.B2) {
+                if(!RMsel && !BMsel)BMsel = true;
             }
 		}
 

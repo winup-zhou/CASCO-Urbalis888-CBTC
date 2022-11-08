@@ -114,7 +114,7 @@ namespace TGMTAts {
             // 显示速度、预选模式、驾驶模式、控制级别、车门模式
             panel[31] = 0;
             panel[1] = Convert.ToInt32(Math.Floor(Math.Abs(state.Speed) * speedMultiplier));
-            panel[22] = selectedMode;
+            panel[22] = BMstatus ? 3 : 4;
             panel[24] = driveMode;
             panel[25] = signalMode;
             panel[28] = (driveMode > 0) ? (driveMode > 1 ? doorMode : 1) : 0;
@@ -133,13 +133,12 @@ namespace TGMTAts {
             }
 
             // 显示临时预选模式
-            if (state.Speed != 0 || time > selectModeStartTime + Config.ModeSelectTimeout * 1000) {
+            /*if (state.Speed != 0 || time > selectModeStartTime + Config.ModeSelectTimeout * 1000) {
                 selectingMode = -1;
                 selectModeStartTime = 0;
-            }
-            if (selectingMode >= 0) {
-                ackMessage = 4;
-                panel[22] = time % 1000 < 500 ? selectingMode : 6;
+            }*/
+            if (BMsel) {
+                panel[22] = time % 1000 < 500 ? (BMstatus ? 3 : 4) : 6;
             }
 
             // 显示目标速度、建议速度、干预速度
@@ -612,6 +611,18 @@ namespace TGMTAts {
             }
             else
             {
+                if (Messages.Count < 3)
+                {
+                    upbuttonClickable = false;
+                    downbuttonClickable = false;
+                }
+                else
+                {
+                    if (msgpos >= Messages.Count - 1) upbuttonClickable = false;
+                    else upbuttonClickable = true;
+                    if (msgpos <= 2) downbuttonClickable = false;
+                    else downbuttonClickable = true;
+                }
                 if (Messages.Count == 1)
                 {
                     panel[55] = 11;
@@ -686,18 +697,6 @@ namespace TGMTAts {
                     panel[47] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 1);
                     panel[48] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 0);
                     panel[49] = Messages[msgpos].Item2;
-                    if (Messages.Count < 3)
-                    {
-                        upbuttonClickable = false;
-                        downbuttonClickable = false;
-                    }
-                    else
-                    {
-                        if (msgpos > Messages.Count - 1) upbuttonClickable = false;
-                        else upbuttonClickable = true;
-                        if (msgpos < 2) downbuttonClickable = false;
-                        else downbuttonClickable = true;
-                    }
                 }
             }
 
