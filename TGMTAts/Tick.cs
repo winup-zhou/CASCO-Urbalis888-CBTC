@@ -40,13 +40,7 @@ namespace TGMTAts {
             StationManager.Update(state, doorOpen);
 
             CalculatedLimit maximumCurve = null, targetCurve = null, recommendCurve = null;
-            if (ModesAvailable)
-            {
-                Messages.Add(new Tuple<int, int, int>(state.Time, 1, 2));
-                sound[1] = 1;
-                MsglastShowTime = state.Time;
-                ModesAvailable = false;
-            }
+
             switch (signalMode) {
                 case 0:
                     ebSpeed = Config.RMSpeed;
@@ -118,11 +112,25 @@ namespace TGMTAts {
             }
 
             // 显示速度、预选模式、驾驶模式、控制级别、车门模式
+            panel[31] = 0;
             panel[1] = Convert.ToInt32(Math.Floor(Math.Abs(state.Speed) * speedMultiplier));
             panel[22] = selectedMode;
             panel[24] = driveMode;
             panel[25] = signalMode;
             panel[28] = (driveMode > 0) ? (driveMode > 1 ? doorMode : 1) : 0;
+
+            if (localised == false || deviceCapability == 0)
+            {
+                if (driveMode != 0)
+                {
+                    recommendSpeed_on_dmi = 0;
+                    recommendSpeed = 0;
+                    ebSpeed = 0;
+                    targetSpeed = 0;
+                    targetDistance = -10;
+                }
+                panel[31] = driveMode == 0 ? 2 : 5;
+            }
 
             // 显示临时预选模式
             if (state.Speed != 0 || time > selectModeStartTime + Config.ModeSelectTimeout * 1000) {
@@ -162,7 +170,16 @@ namespace TGMTAts {
             targetSpeed = Math.Min(targetSpeed, Config.MaxSpeed);
             panel[17] = (int)targetSpeed;
             panel[18] = (targetSpeed < 0) ? 1 : 0;
-            panel[29] = panel[31] = 0;
+            panel[29] = 0;
+
+            if (ModesAvailable)
+            {
+                if (Messages[Messages.Count - 1].Item3 > 0) Messages.RemoveAt(Messages.Count - 1);
+                Messages.Add(new Tuple<int, int, int>(state.Time, 1, 2));
+                sound[1] = 1;
+                MsglastShowTime = state.Time;
+                ModesAvailable = false;
+            }
 
             // 显示出发与屏蔽门信息
             if (signalMode > 1 && state.Speed == 0) {
@@ -251,6 +268,7 @@ namespace TGMTAts {
                     // 超出制动干预速度
                     if (ebState == 0)
                     {
+                        if (Messages[Messages.Count - 1].Item3 > 0) Messages.RemoveAt(Messages.Count - 1);
                         Messages.Add(new Tuple<int, int, int>(state.Time, 5, 1));
                         MsglastShowTime = state.Time;
                     }
@@ -284,6 +302,7 @@ namespace TGMTAts {
                 }
                 if (ebState == 0)
                 {
+
                     Messages.Add(new Tuple<int, int, int>(state.Time, 9, 1));
                     MsglastShowTime = state.Time;
                 }
@@ -325,9 +344,9 @@ namespace TGMTAts {
             if (releaseSpeed) panel[31] = 3;
             if (ackMessage > 0) {
                 panel[35] = ackMessage;
-                panel[36] = ((state.Time / 1000) % 1 < 0.5) ? 1 : 0;
+                //panel[36] = ((state.Time / 1000) % 1 < 0.5) ? 1 : 0;
             } else {
-                panel[35] = panel[36] = 0;
+                panel[35] = 0;
             }
 
             // 显示TDT、车门使能，车门零速保护
@@ -470,12 +489,102 @@ namespace TGMTAts {
             if (msgpos < 2) msgpos = 2;
 
             //信息提示栏
-            if (Messages[Messages.Count - 1].Item3 == 1)
+            if(Messages[Messages.Count - 1].Item3> 0)
             {
-                upbuttonClickable = false;
-                downbuttonClickable = false;
-                if (Messages.Count == 1)
+                if (Messages[Messages.Count - 1].Item3 == 1)
                 {
+                    upbuttonClickable = false;
+                    downbuttonClickable = false;
+                    if (Messages.Count == 1)
+                    {
+                        panel[55] = 11;
+                        panel[56] = 11;
+                        panel[57] = 11;
+                        panel[58] = 11;
+                        panel[59] = 0;
+                        panel[50] = 11;
+                        panel[51] = 11;
+                        panel[52] = 11;
+                        panel[53] = 11;
+                        panel[54] = 0;
+                        panel[45] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
+                        panel[46] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
+                        panel[47] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
+                        panel[48] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
+                        panel[49] = Messages[0].Item2;
+                    }
+                    else if (Messages.Count == 2)
+                    {
+                        panel[55] = 11;
+                        panel[56] = 11;
+                        panel[57] = 11;
+                        panel[58] = 11;
+                        panel[59] = 0;
+                        panel[50] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
+                        panel[51] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
+                        panel[52] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
+                        panel[53] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
+                        panel[54] = Messages[0].Item2;
+                        panel[45] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
+                        panel[46] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
+                        panel[47] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
+                        panel[48] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
+                        panel[49] = Messages[1].Item2;
+                    }
+                    else if (Messages.Count == 3)
+                    {
+                        panel[55] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
+                        panel[56] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
+                        panel[57] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
+                        panel[58] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
+                        panel[59] = Messages[0].Item2;
+                        panel[50] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
+                        panel[51] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
+                        panel[52] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
+                        panel[53] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
+                        panel[54] = Messages[1].Item2;
+                        panel[45] = D(Messages[2].Item1 / 1000 / 3600 % 60, 1);
+                        panel[46] = D(Messages[2].Item1 / 1000 / 3600 % 60, 0);
+                        panel[47] = D(Messages[2].Item1 / 1000 / 60 % 60, 1);
+                        panel[48] = D(Messages[2].Item1 / 1000 / 60 % 60, 0);
+                        panel[49] = Messages[2].Item2;
+                    }
+
+                    else
+                    {
+                        msgpos = Messages.Count - 1;
+                        panel[55] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 1);
+                        panel[56] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 0);
+                        panel[57] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 1);
+                        panel[58] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 0);
+                        panel[59] = Messages[msgpos - 2].Item2;
+                        panel[50] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 1);
+                        panel[51] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 0);
+                        panel[52] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 1);
+                        panel[53] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 0);
+                        panel[54] = Messages[msgpos - 1].Item2;
+                        panel[45] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 1);
+                        panel[46] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 0);
+                        panel[47] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 1);
+                        panel[48] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 0);
+                        panel[49] = Messages[msgpos].Item2;
+                    }
+                    panel[60] = 1;
+                    if (state.Time - MsglastShowTime > 5000)
+                    {
+                        Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
+                        Messages.RemoveAt(Messages.Count - 2);
+                        sound[1] = -10000;
+                        panel[60] = 0;
+                    }
+
+                }
+                else if (Messages[Messages.Count - 1].Item3 == 2)
+                {
+                    var lastcnt = Messages.Count;
+                    upbuttonClickable = false;
+                    downbuttonClickable = false;
+                    panel[36] = 1;
                     panel[55] = 11;
                     panel[56] = 11;
                     panel[57] = 11;
@@ -485,106 +594,20 @@ namespace TGMTAts {
                     panel[51] = 11;
                     panel[52] = 11;
                     panel[53] = 11;
-                    panel[54] = 0;
-                    panel[45] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                    panel[46] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                    panel[47] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                    panel[48] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
-                    panel[49] = Messages[0].Item2;
-                }
-                else if (Messages.Count == 2)
-                {
-                    panel[55] = 11;
-                    panel[56] = 11;
-                    panel[57] = 11;
-                    panel[58] = 11;
-                    panel[59] = 0;
-                    panel[50] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                    panel[51] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                    panel[52] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                    panel[53] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
-                    panel[54] = Messages[0].Item2;
-                    panel[45] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
-                    panel[46] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
-                    panel[47] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
-                    panel[48] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
-                    panel[49] = Messages[1].Item2;
-                }
-                else if (Messages.Count == 3)
-                {
-                    panel[55] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                    panel[56] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                    panel[57] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                    panel[58] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
-                    panel[59] = Messages[0].Item2;
-                    panel[50] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
-                    panel[51] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
-                    panel[52] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
-                    panel[53] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
-                    panel[54] = Messages[1].Item2;
-                    panel[45] = D(Messages[2].Item1 / 1000 / 3600 % 60, 1);
-                    panel[46] = D(Messages[2].Item1 / 1000 / 3600 % 60, 0);
-                    panel[47] = D(Messages[2].Item1 / 1000 / 60 % 60, 1);
-                    panel[48] = D(Messages[2].Item1 / 1000 / 60 % 60, 0);
-                    panel[49] = Messages[2].Item2;
-                }
-
-                else
-                {
-                    msgpos = Messages.Count - 1;
-                    panel[55] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 1);
-                    panel[56] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 0);
-                    panel[57] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 1);
-                    panel[58] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 0);
-                    panel[59] = Messages[msgpos - 2].Item2;
-                    panel[50] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 1);
-                    panel[51] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 0);
-                    panel[52] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 1);
-                    panel[53] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 0);
-                    panel[54] = Messages[msgpos - 1].Item2;
-                    panel[45] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 1);
-                    panel[46] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 0);
-                    panel[47] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 1);
-                    panel[48] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 0);
-                    panel[49] = Messages[msgpos].Item2;
-                }
-                panel[60] = 1;
-                if (state.Time - MsglastShowTime > 5000)
-                {
-                    Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
-                    Messages.RemoveAt(Messages.Count - 2);
-                    sound[1] = -10000;
-                    panel[60] = 0;
-                }
-
-            }
-            else if (Messages[Messages.Count - 1].Item3 == 2)
-            {
-                upbuttonClickable = false;
-                downbuttonClickable = false;
-                panel[36] = 1;
-                panel[55] = 11;
-                panel[56] = 11;
-                panel[57] = 11;
-                panel[58] = 11;
-                panel[59] = 0;
-                panel[50] = 11;
-                panel[51] = 11;
-                panel[52] = 11;
-                panel[53] = 11;
-                panel[54] = Messages[Messages.Count - 1].Item2;
-                panel[45] = 11;
-                panel[46] = 11;
-                panel[47] = 11;
-                panel[48] = 11;
-                panel[49] = 0;
-                if (state.Time - MsglastShowTime > 5000)
-                {
-                    Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
-                    Messages.RemoveAt(Messages.Count - 2);
-                    panel[36] = 0;
-                    if(Messages.Count > 3) msgpos = Messages.Count - 1;
-                    sound[1] = -10000;
+                    panel[54] = Messages[Messages.Count - 1].Item2;
+                    panel[45] = 11;
+                    panel[46] = 11;
+                    panel[47] = 11;
+                    panel[48] = 11;
+                    panel[49] = 0;
+                    if (state.Time - MsglastShowTime > 5000)
+                    {
+                        Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
+                        Messages.RemoveAt(Messages.Count - 2);
+                        panel[36] = 0;
+                        if (Messages.Count > 3) msgpos = Messages.Count - 1;
+                        sound[1] = -10000;
+                    }
                 }
             }
             else

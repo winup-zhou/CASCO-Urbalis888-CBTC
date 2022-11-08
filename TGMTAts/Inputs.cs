@@ -73,9 +73,7 @@ namespace TGMTAts{
                     trackLimit.SetBeacon(data);
                     break;
                 case 96811:
-                    var lastdeviceCapability = deviceCapability;
                     deviceCapability = data.Optional;
-                    if (lastdeviceCapability == 0 && deviceCapability > 0) ModesAvailable = true;
                     FixIncompatibleModes();
                     break;
                 case 96812:
@@ -104,9 +102,13 @@ namespace TGMTAts{
                 case 96802:
                     // TGMT 主
                     // TGMT 填充
+                    if (!localised)
+                    {
+                        localised = true;
+                        if (deviceCapability > 0) ModesAvailable = true;
+                    }
                     signalMode = 2;
                     FixIncompatibleModes();
-
                     if (signalMode == 1) {
                         if (data.Signal > 0) {
                             Log("移动授权延伸到 " + data.Optional);
@@ -121,6 +123,11 @@ namespace TGMTAts{
                     break;
                 case 96803:
                     // TGMT 定位
+                    if (!localised)
+                    {
+                        localised = true;
+                        if (deviceCapability > 0) ModesAvailable = true;
+                    }
                     signalMode = 2;
                     FixIncompatibleModes();
                     break;
@@ -142,6 +149,7 @@ namespace TGMTAts{
             releaseSpeed = false;
             ebState = 0;
             ackMessage = 0;
+            localised = false;
 
             Ato.ResetCache();
             PreTrainManager.ResetCache();

@@ -91,7 +91,7 @@ namespace TGMTAts {
                 g800.DrawImage(menu, 526, 522, panel[23] * 61, 61);
 
 
-                if (Math.Abs(StationManager.NextStation.StopPosition - state.Location) < Config.DoorEnableWindow && TGMTAts.signalMode == 2 && state.Speed < 1)
+                if (Math.Abs(StationManager.NextStation.StopPosition - state.Location) < Config.DoorEnableWindow && TGMTAts.signalMode > 0 && state.Speed < 1)
                 {
                     int sectogo = Convert.ToInt32((state.Time - StationManager.NextStation.DepartureTime) / 1000);
                     g800.DrawImage(tdt_dmi, 519, 72, 1 * 50, 50);
