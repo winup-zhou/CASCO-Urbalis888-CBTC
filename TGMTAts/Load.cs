@@ -73,6 +73,8 @@ namespace TGMTAts {
         public static bool BMstatus = false;
         public static bool RMsel = false;
         public static bool BMsel = false;
+        public static bool Touch = false;
+        public static bool wheelslip = false;
 
         public static double reverseStartLocation = Config.LessInf;
         
@@ -84,7 +86,7 @@ namespace TGMTAts {
         public static HarmonyLib.Harmony harmony;
 
         static TGMTAts() {
-            Config.Load(Path.Combine(Config.PluginDir, "TGMTConfig.txt"));
+            Config.Load(Path.Combine(Config.PluginDir, "UrbalisConfig.txt"));
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
         }
 
@@ -205,6 +207,7 @@ namespace TGMTAts {
                 {
                     if (e.X >= 37 && e.X <= 131)
                     {
+                        Touch = true;
                         RMstatus = true;
                         selectedMode = 0;
                         ebState = 0;
@@ -214,6 +217,7 @@ namespace TGMTAts {
                     }
                     else if (e.X >= 158 && e.X <= 251)
                     {
+                        Touch = true;
                         RMstatus = false;
                         ebState = 0;
                         signalMode = 0;
@@ -222,12 +226,13 @@ namespace TGMTAts {
                     }
                 }
             }
-            if (BMsel)
+            else if (BMsel)
             {
                 if (e.Y >= 505 && e.Y <= 564)
                 {
                     if (e.X >= 37 && e.X <= 131)
                     {
+                        Touch = true;
                         BMstatus = true;
                         selectedMode = 3;
                         FixIncompatibleModes();
@@ -235,6 +240,7 @@ namespace TGMTAts {
                     }
                     else if (e.X >= 158 && e.X <= 251)
                     {
+                        Touch = true;
                         BMstatus = false;
                         selectedMode = 4;
                         FixIncompatibleModes();
@@ -242,18 +248,22 @@ namespace TGMTAts {
                     }
                 }
             }
-            else if (e.X >= 0 && e.X <= 50)
+            else
             {
-                if (e.Y >= 450 && e.Y <= 510)
+                if (e.X >= 0 && e.X <= 50)
                 {
-                    msgpos += 1;
-                }
-                else if (e.Y >= 520 && e.Y <= 580)
-                {
-                    msgpos -= 1;
+                    if (e.Y >= 450 && e.Y <= 510)
+                    {
+                        if(upbuttonClickable)Touch = true;
+                        msgpos += 1;
+                    }
+                    else if (e.Y >= 520 && e.Y <= 580)
+                    {
+                        if (downbuttonClickable) Touch = true;
+                        msgpos -= 1;
+                    }
                 }
             }
-
             //MessageBox.Show(String.Format("X: {0}, Y: {1}", e.X, e.Y));
         }
 

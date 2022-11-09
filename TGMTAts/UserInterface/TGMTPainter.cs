@@ -45,7 +45,7 @@ namespace TGMTAts {
             gtdt = new GDIHelper(32, 32);
 
             hmi = new Bitmap(Path.Combine(imgDir, "hmi.png"));
-            ackcmd = new Bitmap(Path.Combine(imgDir, "ackcmd.png"));
+           // ackcmd = new Bitmap(Path.Combine(imgDir, "ackcmd.png"));
             atoctrl = new Bitmap(Path.Combine(imgDir, "atoctrl.png"));
             dormode = new Bitmap(Path.Combine(imgDir, "dormode.png"));
             dorrel = new Bitmap(Path.Combine(imgDir, "dorrel.png"));

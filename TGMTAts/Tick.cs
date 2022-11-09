@@ -16,6 +16,8 @@ namespace TGMTAts {
         static int lastDrawTime = 0;
         static int MsglastShowTime = 0;
 
+        static double lastAcc, lastSpeed, lastlocation=0, lastJudgeTime = 0;
+
         [DllExport(CallingConvention.StdCall)]
         public static AtsHandles Elapse(AtsVehicleState state, IntPtr hPanel, IntPtr hSound) {
             var panel = new AtsIoArray(hPanel);
@@ -59,11 +61,11 @@ namespace TGMTAts {
                     recommendCurve = CalculatedLimit.Calculate(location,
                         Config.RecommendDeceleration, 0, StationManager.RecommendCurve(), movementEndpoint, trackLimit);
                     // 释放速度
-                    if (movementEndpoint.Location - location < Config.ReleaseSpeedDistance 
+                    /*if (movementEndpoint.Location - location < Config.ReleaseSpeedDistance 
                         && movementEndpoint.Location > location
                         && state.Speed < Config.ReleaseSpeed && !releaseSpeed) {
                         ackMessage = 2;
-                    }
+                    }*/
                     break;
                 case 2:
                     // CTC
@@ -103,11 +105,7 @@ namespace TGMTAts {
                     if (releaseSpeed) Log("超出了移动授权终点, 释放速度无效");
                     recommendSpeed = 0;
                     ebSpeed = 0;
-                    releaseSpeed = false;
-                }
-                if (releaseSpeed) {
-                    ebSpeed = Math.Max(ebSpeed, Config.ReleaseSpeed);
-                    recommendSpeed = Math.Max(recommendSpeed, Config.ReleaseSpeed - Config.RecommendSpeedOffset);
+                    
                 }
             }
 
@@ -173,7 +171,11 @@ namespace TGMTAts {
 
             if (ModesAvailable)
             {
-                if (Messages[Messages.Count - 1].Item3 > 0) Messages.RemoveAt(Messages.Count - 1);
+                if (Messages[Messages.Count - 1].Item3 > 0)
+                {
+                    Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
+                    Messages.RemoveAt(Messages.Count - 2);
+                }
                 Messages.Add(new Tuple<int, int, int>(state.Time, 1, 2));
                 sound[1] = 1;
                 MsglastShowTime = state.Time;
@@ -183,11 +185,27 @@ namespace TGMTAts {
             // 显示出发与屏蔽门信息
             if (signalMode > 1 && state.Speed == 0) {
                 if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.DoorEnableWindow
-                    && time > StationManager.NextStation.DepartureTime - Config.DepartRequestTime * 1000&& !doorOpen && StationManager.Arrived) {
+                    && time > StationManager.NextStation.DepartureTime - Config.DepartRequestTime * 1000 && !doorOpen && StationManager.Arrived) {
                     panel[32] = 2;
                 } else if (doorOpen && time - doorOpenTime >= Config.CloseRequestShowTime * 1000) {
                     panel[32] = 1;
-                } else {
+                } else if(StationManager.Arrived&&state.Time < StationManager.NextStation.RouteOpenTime)
+                {
+                    panel[32] = 3;
+                    if (state.Speed > 0)
+                    {
+                        if (Messages[Messages.Count - 1].Item3 > 0)
+                        {
+                            Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
+                            Messages.RemoveAt(Messages.Count - 2);
+                        }
+                        Messages.Add(new Tuple<int, int, int>(state.Time, 4, 1));
+                        ebState = 1;
+                        sound[0] = 1;
+                        MsglastShowTime = state.Time;
+                    }
+                } 
+                else {
                     panel[32] = 0;
                 }
             } else {
@@ -256,7 +274,9 @@ namespace TGMTAts {
                     if (ebState > 0) {
                         if (location > movementEndpoint.Location) {
                             // 冲出移动授权终点，要求RM
-                            ackMessage = 6;
+                            recommendSpeed_on_dmi = 0;
+                            recommendSpeed = 0;
+                            ebSpeed = 0;
                         } else {
                             handles.Brake = 0;
                             ebState = 0;
@@ -267,7 +287,11 @@ namespace TGMTAts {
                     // 超出制动干预速度
                     if (ebState == 0)
                     {
-                        if (Messages[Messages.Count - 1].Item3 > 0) Messages.RemoveAt(Messages.Count - 1);
+                        if (Messages[Messages.Count - 1].Item3 > 0)
+                        {
+                            Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
+                            Messages.RemoveAt(Messages.Count - 2);
+                        }
                         Messages.Add(new Tuple<int, int, int>(state.Time, 5, 1));
                         MsglastShowTime = state.Time;
                     }
@@ -297,11 +321,17 @@ namespace TGMTAts {
                 // ITC下冲出移动授权终点。
                 if (state.Speed == 0) {
                     // 停稳后降级到RM模式。等待确认。
-                    ackMessage = 6;
+                    recommendSpeed_on_dmi = 0;
+                    recommendSpeed = 0;
+                    ebSpeed = 0;
                 }
                 if (ebState == 0)
                 {
-
+                    if (Messages[Messages.Count - 1].Item3 > 0)
+                    {
+                        Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
+                        Messages.RemoveAt(Messages.Count - 2);
+                    }
                     Messages.Add(new Tuple<int, int, int>(state.Time, 9, 1));
                     MsglastShowTime = state.Time;
                 }
@@ -339,14 +369,46 @@ namespace TGMTAts {
                 reverseStartLocation = Config.LessInf;
             }
 
+            if (state.Speed > 0)
+            {
+                if (doorOpen)
+                {
+                    if (ebState == 0)
+                    {
+                        if (Messages[Messages.Count - 1].Item3 > 0)
+                        {
+                            Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
+                            Messages.RemoveAt(Messages.Count - 2);
+                        }
+                        Messages.Add(new Tuple<int, int, int>(state.Time, 2, 1));
+                        MsglastShowTime = state.Time;
+                    }
+                    ebState = 2;
+                }
+                else if (doorOpen && panel[29] == 3)
+                {
+                    if (ebState == 0)
+                    {
+                        if (Messages[Messages.Count - 1].Item3 > 0)
+                        {
+                            Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
+                            Messages.RemoveAt(Messages.Count - 2);
+                        }
+                        Messages.Add(new Tuple<int, int, int>(state.Time, 3, 1));
+                        MsglastShowTime = state.Time;
+                    }
+                    ebState = 2;
+                }
+            }
+
             // 显示释放速度、确认消息
-            if (releaseSpeed) panel[31] = 3;
+           /* if (releaseSpeed) panel[31] = 3;
             if (ackMessage > 0) {
                 panel[35] = ackMessage;
                 //panel[36] = ((state.Time / 1000) % 1 < 0.5) ? 1 : 0;
             } else {
                 panel[35] = 0;
-            }
+            }*/
 
             // 显示TDT、车门使能，车门零速保护
             if (StationManager.NextStation != null) {
@@ -484,6 +546,32 @@ namespace TGMTAts {
                 }
             }
 
+            if ((BMsel || RMsel) && state.Speed > 0 && ebState == 0)
+            {
+                if (Messages[Messages.Count - 1].Item3 > 0)
+                {
+                    Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
+                    Messages.RemoveAt(Messages.Count - 2);
+                }
+                Messages.Add(new Tuple<int, int, int>(state.Time, 11, 1));
+                ebState = 1;
+                sound[0] = 1;
+                MsglastShowTime = state.Time;
+            }
+
+            if (state.Speed < 0 && handles.Reverser == 1 && ebState == 0)
+            {
+                if (Messages[Messages.Count - 1].Item3 > 0)
+                {
+                    Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
+                    Messages.RemoveAt(Messages.Count - 2);
+                }
+                Messages.Add(new Tuple<int, int, int>(state.Time, 10, 1));
+                ebState = 1;
+                sound[0] = 1;
+                MsglastShowTime = state.Time;
+            }
+
             if (msgpos > Messages.Count - 1) msgpos = Messages.Count - 1;
             if (msgpos < 2) msgpos = 2;
 
@@ -580,7 +668,7 @@ namespace TGMTAts {
                 }
                 else if (Messages[Messages.Count - 1].Item3 == 2)
                 {
-                    var lastcnt = Messages.Count;
+                    panel[60] = 0;
                     upbuttonClickable = false;
                     downbuttonClickable = false;
                     panel[36] = 1;
@@ -700,7 +788,35 @@ namespace TGMTAts {
                 }
             }
 
-            
+            if (state.Time - lastJudgeTime > 100)
+            {
+                var nowAcc = (state.Speed * state.Speed - lastSpeed * lastSpeed) / state.Location - lastlocation / 2;
+                var wheelSpeed = (state.Speed + lastSpeed) / 2;
+                var normalSpeed = ((state.Location - lastlocation) / ((state.Time - lastJudgeTime) / 1000)) * 3.6;
+                if (panel[29] != 2 && lastAcc != 0 && lastlocation != 0 && lastJudgeTime != 0)
+                {
+                    if (Math.Abs(wheelSpeed - normalSpeed) > 1.5 && Math.Abs(wheelSpeed - normalSpeed) <= 5)
+                    {
+                        panel[29] = state.Time % 1000 < 500 ? 1 : 0;
+                        wheelslip = true;
+                    }
+                    else if (Math.Abs(wheelSpeed - normalSpeed) > 5)
+                    {
+                        panel[29] = 1;
+                        wheelslip = true;
+                    }
+                    else
+                    {
+                        wheelslip = false;
+                    }
+                }
+                lastAcc = nowAcc;
+                lastlocation = state.Location;
+                lastJudgeTime = state.Time;
+                lastSpeed = state.Speed;
+            }
+
+            if (wheelslip) sound[0] = 0;
 
             // 刷新HMI, TDT, 信号机材质，为了减少对FPS影响把它限制到最多一秒10次
             if (lastDrawTime > state.Time) lastDrawTime = 0;
@@ -713,6 +829,9 @@ namespace TGMTAts {
                 //TextureManager.UpdateTexture(TextureManager.HmiTexture, TGMTPainter.PaintHMI(panel, state));
                 //TextureManager.UpdateTexture(TextureManager.TdtTexture, TGMTPainter.PaintTDT(panel, state));
             }
+            if (Touch) { sound[2] = 1; Touch = false; }
+            else { sound[2] = -10000; }
+            
             return handles;
         }
 

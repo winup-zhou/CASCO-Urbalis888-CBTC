@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TGMTAts</RootNamespace>
-    <AssemblyName>TGMTAts</AssemblyName>
+    <AssemblyName>CASCO_Urbalis888_Ats</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
