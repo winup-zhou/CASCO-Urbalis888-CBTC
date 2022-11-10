@@ -304,7 +304,7 @@ namespace TGMTAts {
                     {
                         Touch = true;
                         if (CrewID.Count < 3)
-                            CrewID.Add(3);
+                            CrewID.Add(2);
                     }
                     else if (e.Y >= 362 && e.Y <= 402)
                     {
