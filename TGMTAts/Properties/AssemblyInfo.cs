@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
 [assembly: AssemblyTitle("CASCO Urbalis888 Ats Plugin for BVE5/6")]
-[assembly: AssemblyDescription("CASCO Urbalis888 Ats Plugin for BVE5/6")]
+[assembly: AssemblyDescription("CASCO Urbalis888 Ats Plugin Preview Version for BVE5/6")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Zbx1425 & Win_Update")]
 [assembly: AssemblyProduct("CASCO Urbalis888 Ats Plugin for BVE Trainsim 5/6")]

@@ -40,8 +40,8 @@ namespace TGMTAts {
 
         public static double TDTFreezeDistance = 10;
 
-        public static string DTLibPath = "";
-        public static string ImageAssetPath = "TGMT";
+        public static string DTLibPath = "DXDynamicTexture";
+        public static string ImageAssetPath = "CASCO\\images";
 
         public static string HMIImageSuffix = "zbx1425_tgmt_hmi.png";
         public static string TDTImageSuffix = "zbx1425_tgmt_tdt.png";
