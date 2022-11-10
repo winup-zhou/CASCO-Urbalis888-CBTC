@@ -572,6 +572,11 @@ namespace TGMTAts {
                 MsglastShowTime = state.Time;
             }
 
+            if ((StationManager.Arrived&&doorOpen) || state.Location > StationManager.NextStation.StopPosition + Config.StationEndDistance)
+            {
+                nowNextStationNumber = StationManager.NextStation.NextstationNumber;
+            }
+
             if (msgpos > Messages.Count - 1) msgpos = Messages.Count - 1;
             if (msgpos < 2) msgpos = 2;
 
@@ -795,12 +800,12 @@ namespace TGMTAts {
                 var normalSpeed = ((state.Location - lastlocation) / ((state.Time - lastJudgeTime) / 1000)) * 3.6;
                 if (panel[29] != 2 && lastAcc != 0 && lastlocation != 0 && lastJudgeTime != 0)
                 {
-                    if (Math.Abs(wheelSpeed - normalSpeed) > 1.5 && Math.Abs(wheelSpeed - normalSpeed) <= 5)
+                    if (Math.Abs(wheelSpeed - normalSpeed) > 3 && Math.Abs(wheelSpeed - normalSpeed) <= 6)
                     {
                         panel[29] = state.Time % 1000 < 500 ? 1 : 0;
                         wheelslip = true;
                     }
-                    else if (Math.Abs(wheelSpeed - normalSpeed) > 5)
+                    else if (Math.Abs(wheelSpeed - normalSpeed) > 6)
                     {
                         panel[29] = 1;
                         wheelslip = true;

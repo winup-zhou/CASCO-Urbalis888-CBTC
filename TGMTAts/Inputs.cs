@@ -84,7 +84,15 @@ namespace TGMTAts{
                 case 96821:
                 case 96822:
                 case 96823:
+                case 96824:
+                case 96827:
                     StationManager.SetBeacon(data);
+                    break;
+                case 96825:
+                    destination = data.Optional;
+                    break;
+                case 96826:
+                    trainNumber = data.Optional;
                     break;
                 case 96828:
                 case 96829:

@@ -28,16 +28,16 @@ namespace TGMTAts {
         private static Brush[] colonshow = new Brush[] { new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty),
             new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty),
             new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.Empty), new SolidBrush(Color.FromArgb(2, 17, 33))};
-        private static Bitmap hmi, ackcmd, atoctrl, dormode, dorrel, drvmode, emergency, fault, departure, menu,
-            selmode, sigmode, special, stopsig, num0, numn0, latestmsg, alive, numn1, num1, message, upbutton, downbutton ,tdt_dmi,bmsel,rmsel;
+        private static Bitmap hmi, atoctrl, dormode, dorrel, drvmode, emergency, fault, departure, menu,
+            selmode, sigmode, special, stopsig, num0, numn0, latestmsg, alive, numn1, num1, message, upbutton, downbutton, tdt_dmi, bmsel, rmsel, staname, ARsig, crewid,numn0b;
         private static Bitmap bmp800, bmp1024, bmptdt;
         private static GDIHelper g800, g1024, gtdt;
 
         public static void Initialize() {
             var imgDir = Config.ImageAssetPath;
 
-            bmp800 = new Bitmap(760, 600, PixelFormat.Format32bppRgb);
-            g800 = new GDIHelper(760, 600);
+            bmp800 = new Bitmap(800, 600, PixelFormat.Format32bppRgb);
+            g800 = new GDIHelper(800, 600);
             bmp1024 = new Bitmap(1024, 1024, PixelFormat.Format32bppRgb);
             g1024 = new GDIHelper(1024, 1024);
 
@@ -45,7 +45,6 @@ namespace TGMTAts {
             gtdt = new GDIHelper(32, 32);
 
             hmi = new Bitmap(Path.Combine(imgDir, "hmi.png"));
-           // ackcmd = new Bitmap(Path.Combine(imgDir, "ackcmd.png"));
             atoctrl = new Bitmap(Path.Combine(imgDir, "atoctrl.png"));
             dormode = new Bitmap(Path.Combine(imgDir, "dormode.png"));
             dorrel = new Bitmap(Path.Combine(imgDir, "dorrel.png"));
@@ -61,6 +60,7 @@ namespace TGMTAts {
 
             num0 = new Bitmap(Path.Combine(imgDir, "num0.png"));
             numn0 = new Bitmap(Path.Combine(imgDir, "num-0.png"));
+            numn0b = new Bitmap(Path.Combine(imgDir, "num-0b.png"));
             num1 = new Bitmap(Path.Combine(imgDir, "num1.png"));
             numn1 = new Bitmap(Path.Combine(imgDir, "num-1.png"));
             latestmsg = new Bitmap(Path.Combine(imgDir, "latestmsg.png"));
@@ -73,9 +73,14 @@ namespace TGMTAts {
             tdt_dmi = new Bitmap(Path.Combine(imgDir, "TDT_DMI.png"));
             bmsel = new Bitmap(Path.Combine(imgDir, "BM_sel_button.png"));
             rmsel = new Bitmap(Path.Combine(imgDir, "RM_sel_button.png"));
+            staname = new Bitmap(Path.Combine(imgDir, "stanames.png"));
+            ARsig = new Bitmap(Path.Combine(imgDir, "ARsig.png"));
+            crewid = new Bitmap(Path.Combine(imgDir, "CREW_ID.png"));
         }
 
         public static void Dispose() {
+            TGMTAts.HmiTexture.Dispose();
+            TGMTAts.TdtTexture.Dispose();
             bmp800.Dispose();
             bmp1024.Dispose();
             bmptdt.Dispose();
@@ -90,50 +95,82 @@ namespace TGMTAts {
                 g800.BeginGDI();
                 g800.DrawImage(hmi, 0, 0, panel[43] * 600, 730);
 
-                g800.DrawImage(menu, 526, 522, panel[23] * 61, 61);
-
+                g800.DrawImage(menu, 535, 522, panel[23] * 61, 61);
 
                 if (Math.Abs(StationManager.NextStation.StopPosition - state.Location) < Config.DoorEnableWindow && TGMTAts.signalMode > 0 && state.Speed < 1)
                 {
                     int sectogo = Convert.ToInt32((state.Time - StationManager.NextStation.DepartureTime) / 1000);
-                    g800.DrawImage(tdt_dmi, 519, 72, 1 * 50, 50);
+                    g800.DrawImage(tdt_dmi, 524, 72, 1 * 50, 50);
                     if (sectogo < -99)
                     {
-                        g800.DrawImage(numn0, 690, 87, (state.Time % 1000 < 500 ? 9 : 10) * 18, 18);
-                        g800.DrawImage(numn0, 676, 87, (state.Time % 1000 < 500 ? 9 : 10) * 18, 18);
+                        g800.DrawImage(numn0, 710, 87, (state.Time % 1000 < 500 ? 9 : 10) * 18, 18);
+                        g800.DrawImage(numn0, 696, 87, (state.Time % 1000 < 500 ? 9 : 10) * 18, 18);
                     }
                     else if (sectogo > -1)
                     {
-                        g800.DrawImage(numn0, 690, 87, (state.Time % 1000 < 500 ? 0 : 10) * 18, 18);
-                        g800.DrawImage(numn0, 676, 87, 10 * 18, 18);
+                        g800.DrawImage(numn0, 710, 87, (state.Time % 1000 < 500 ? 0 : 10) * 18, 18);
+                        g800.DrawImage(numn0, 696, 87, 10 * 18, 18);
                     }
                     else
                     {
-                        g800.DrawImage(numn0, 690, 87, D(-sectogo, 0) * 18, 18);
-                        g800.DrawImage(numn0, 676, 87, D(-sectogo, 1) * 18, 18);
+                        g800.DrawImage(numn0, 710, 87, D(-sectogo, 0) * 18, 18);
+                        g800.DrawImage(numn0, 696, 87, D(-sectogo, 1) * 18, 18);
                     }
 
                 }
                 else
                 {
-                    g800.DrawImage(tdt_dmi, 519, 72, 0 * 50, 50);
-                    g800.DrawImage(numn0, 690, 87, 10 * 18, 18);
-                    g800.DrawImage(numn0, 676, 87, 10 * 18, 18);
+                    g800.DrawImage(tdt_dmi, 524, 72, 0 * 50, 50);
+                    g800.DrawImage(numn0, 710, 87, 10 * 18, 18);
+                    g800.DrawImage(numn0, 696, 87, 10 * 18, 18);
                 }
 
                 //列车信息
+                g800.DrawImage(staname, 535, 11, TGMTAts.destination * 18, 18);
+                g800.DrawImage(num1, 480, 12, D(TGMTAts.trainNumber, 3) * 13, 13);
+                g800.DrawImage(num1, 490, 12, D(TGMTAts.trainNumber, 2) * 13, 13);
+                g800.DrawImage(num1, 500, 12, D(TGMTAts.trainNumber, 1) * 13, 13);
+                g800.DrawImage(num1, 510, 12, D(TGMTAts.trainNumber, 0) * 13, 13);
 
                 //站信息
+                g800.DrawImage(staname, 104, 37, TGMTAts.nowNextStationNumber * 18, 18);
+                g800.DrawImage(staname, 230, 37, TGMTAts.destination * 18, 18);
+                if (StationManager.NextStation.DepartureTime != 0 && Math.Abs(StationManager.NextStation.StopPosition - state.Location) < Config.DoorEnableWindow && state.Speed < 1)
+                {
+                    var sec_ = StationManager.NextStation.DepartureTime / 1000 % 60;
+                    var min_ = StationManager.NextStation.DepartureTime / 1000 / 60 % 60;
+                    var hrs_ = StationManager.NextStation.DepartureTime / 1000 / 3600 % 60;
+                    g800.DrawImage(num1, 368, 39, D(hrs_, 1) * 13, 13);
+                    g800.DrawImage(num1, 378, 39, D(hrs_, 0) * 13, 13);
+                    g800.DrawImage(num1, 393, 39, D(min_, 1) * 13, 13);
+                    g800.DrawImage(num1, 403, 39, D(min_, 0) * 13, 13);
+                    g800.DrawImage(num1, 418, 39, D(sec_, 1) * 13, 13);
+                    g800.DrawImage(num1, 428, 39, D(sec_, 0) * 13, 13);
+                }
 
-                g800.DrawImage(drvmode, 519, 129, panel[24] * 50, 50);
-                g800.DrawImage(sigmode, 646, 129, panel[25] * 50, 50);
-                g800.DrawImage(stopsig, 646, 194, panel[26] * 50, 50);
-                g800.DrawImage(dorrel, 519, 260, panel[27] * 50, 50);
-                g800.DrawImage(dormode, 519, 329, panel[28] * 50, 50);
-                g800.DrawImage(departure, 646, 260, panel[32] * 50, 50);
-                g800.DrawImage(emergency, 646, 329, panel[29] * 50, 50);
-                g800.DrawImage(fault, 519, 396, panel[30] * 50, 50);
-                g800.DrawImage(special, 646, 396, panel[31] * 50, 50);
+                //司机号
+                if (TGMTAts.CrewID.Count == 3){
+                    g800.DrawImage(numn0b, 720, 20, TGMTAts.CrewID[0] * 18, 18);
+                    g800.DrawImage(numn0b, 735, 20, TGMTAts.CrewID[1] * 18, 18);
+                    g800.DrawImage(numn0b, 750, 20, TGMTAts.CrewID[2] * 18, 18);
+                }
+                else
+                {
+                    g800.DrawImage(numn0b, 720, 20, 10 * 18, 18);
+                    g800.DrawImage(numn0b, 735, 20, 10 * 18, 18);
+                    g800.DrawImage(numn0b, 750, 20, 10 * 18, 18);
+                }
+
+                g800.DrawImage(drvmode, 524, 129, panel[24] * 50, 50);
+                g800.DrawImage(sigmode, 666, 129, panel[25] * 50, 50);
+                g800.DrawImage(stopsig, 666, 194, panel[26] * 50, 50);
+                //g800.DrawImage(ARsig, 519, 194, 1 * 50, 50);
+                g800.DrawImage(dorrel, 524, 260, panel[27] * 50, 50);
+                g800.DrawImage(dormode, 524, 329, panel[28] * 50, 50);
+                g800.DrawImage(departure, 666, 260, panel[32] * 50, 50);
+                g800.DrawImage(emergency, 666, 329, panel[29] * 50, 50);
+                g800.DrawImage(fault, 524, 396, panel[30] * 50, 50);
+                g800.DrawImage(special, 666, 396, panel[31] * 50, 50);
                 //g800.DrawImage(ackcmd, 472, 453, panel[35] * 100, 100);
 
                 g800.DrawImage(latestmsg, 52, 465, panel[60] * 18, 18);
@@ -196,9 +233,43 @@ namespace TGMTAts {
                 g800.DrawImage(num1, 241, 563, D(min, 0) * 13, 13);
                 g800.DrawImage(num1, 255, 563, D(sec, 1) * 13, 13);
                 g800.DrawImage(num1, 265, 563, D(sec, 0) * 13, 13);
+
+                if (TGMTAts.CREWIDsel) {
+                    g800.DrawImage(crewid, 476, 2);
+                    if (TGMTAts.CrewID.Count > 0)
+                    {
+                        if (TGMTAts.CrewID.Count == 3)
+                        {
+                            g800.DrawImage(numn0b, 685, 87, TGMTAts.CrewID[0] * 18, 18);
+                            g800.DrawImage(numn0b, 700, 87, TGMTAts.CrewID[1] * 18, 18);
+                            g800.DrawImage(numn0b, 715, 87, TGMTAts.CrewID[2] * 18, 18);
+                        }
+                        else if (TGMTAts.CrewID.Count == 2)
+                        {
+                            g800.DrawImage(numn0b, 685, 87, 10 * 18, 18);
+                            g800.DrawImage(numn0b, 700, 87, TGMTAts.CrewID[0] * 18, 18);
+                            g800.DrawImage(numn0b, 715, 87, TGMTAts.CrewID[1] * 18, 18);
+                        }
+                        else if (TGMTAts.CrewID.Count == 1)
+                        {
+                            g800.DrawImage(numn0b, 685, 87, 10 * 18, 18);
+                            g800.DrawImage(numn0b, 700, 87, 10 * 18, 18);
+                            g800.DrawImage(numn0b, 715, 87, TGMTAts.CrewID[0] * 18, 18);
+                        }
+                    }
+                    else
+                    {
+                        g800.DrawImage(numn0b, 685, 87, 10 * 18, 18);
+                        g800.DrawImage(numn0b, 700, 87, 10 * 18, 18);
+                        g800.DrawImage(numn0b, 715, 87, 10 * 18, 18);
+                    }
+                }
                 g800.EndGDI();
 
-                if ((TGMTAts.RMsel || TGMTAts.BMsel) && state.Time % 1000 < 500) g800.Graphics.DrawRectangle(ackPen, new Rectangle(470, 452, 280, 125));
+
+                if (!(StationManager.NextStation.DepartureTime != 0 && Math.Abs(StationManager.NextStation.StopPosition - state.Location) < Config.DoorEnableWindow && state.Speed < 1)) g800.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(2, 17, 33)), new Rectangle(388, 39, 60, 13));
+                if ((TGMTAts.RMsel || TGMTAts.BMsel) && state.Time % 1000 < 500) g800.Graphics.DrawRectangle(ackPen, new Rectangle(470, 452, 306, 125));
+                if (TGMTAts.CREWIDsel && state.Time % 1000 < 500) g800.Graphics.DrawRectangle(ackPen, new Rectangle(476, 2, 306, 442));
                 g800.Graphics.FillRectangle(colonshow[panel[46]], new Rectangle(106, 470, 5, 13));
                 g800.Graphics.FillRectangle(colonshow[panel[51]], new Rectangle(106, 496, 5, 13));
                 g800.Graphics.FillRectangle(colonshow[panel[56]], new Rectangle(106, 522, 5, 13));

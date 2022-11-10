@@ -24,7 +24,7 @@ namespace TGMTAts {
         // 卡斯柯特有的信息提示栏 类型：时间 信息 优先级
         public static List<Tuple<int, int, int>> Messages = new List<Tuple<int, int, int>>();
         public static int msgpos = 2;
-
+        public static int nowNextStationNumber = 0;
         /*
           
         
@@ -75,6 +75,11 @@ namespace TGMTAts {
         public static bool BMsel = false;
         public static bool Touch = false;
         public static bool wheelslip = false;
+        public static int destination = 0;
+        public static int trainNumber = 0000;
+        public static bool CREWIDsel = false;
+        public static List<int> CrewID = new List<int>();
+        public static List<int> lastCrewID = new List<int>();
 
         public static double reverseStartLocation = Config.LessInf;
         
@@ -113,7 +118,7 @@ namespace TGMTAts {
                 TdtTexture = TextureManager.Register(Config.TDTImageSuffix,32,32);
                 var imgDir = Config.ImageAssetPath;
                 TouchManager.EnableEvent(MouseButtons.Left, TouchManager.EventType.Down);
-                HmiTexture.SetClickableArea(470, 0, 290, 600);
+                HmiTexture.SetClickableArea(470, 0, 350, 600);
                 /*upbutton_ = TouchManager.Register(Path.Combine(imgDir, "upbutton_for_click.png"), 64, 64);
                 upbutton_.SetClickableArea(0, 0, 50, 61);*/
                 HmiTexture.MouseDown += HmiTex_MouseDown;
@@ -200,12 +205,12 @@ namespace TGMTAts {
         private static void HmiTex_MouseDown(object sender, TouchEventArgs e)
         {
             //0 450 50 510
-            //37 505 131 564 158 * 251 * 
+            //39 505 141 564 171 * 270 * 
             if (RMsel)
             {
                 if (e.Y >= 505 && e.Y <= 564)
                 {
-                    if (e.X >= 37 && e.X <= 131)
+                    if (e.X >= 39 && e.X <= 141)
                     {
                         Touch = true;
                         RMstatus = true;
@@ -215,7 +220,7 @@ namespace TGMTAts {
                         FixIncompatibleModes();
                         RMsel = false;
                     }
-                    else if (e.X >= 158 && e.X <= 251)
+                    else if (e.X >= 171 && e.X <= 271)
                     {
                         Touch = true;
                         RMstatus = false;
@@ -230,7 +235,7 @@ namespace TGMTAts {
             {
                 if (e.Y >= 505 && e.Y <= 564)
                 {
-                    if (e.X >= 37 && e.X <= 131)
+                    if (e.X >= 39 && e.X <= 141)
                     {
                         Touch = true;
                         BMstatus = true;
@@ -238,7 +243,7 @@ namespace TGMTAts {
                         FixIncompatibleModes();
                         BMsel = false;
                     }
-                    else if (e.X >= 158 && e.X <= 251)
+                    else if (e.X >= 171 && e.X <= 271)
                     {
                         Touch = true;
                         BMstatus = false;
@@ -247,10 +252,98 @@ namespace TGMTAts {
                         BMsel = false;
                     }
                 }
+            }else if(CREWIDsel){
+                Touch = false;
+                if (e.X >= 53 && e.X <= 262 && e.Y >= 138 && e.Y <= 176)
+                {
+                    Touch = true;
+                    CrewID.Clear();
+                }
+                else if(e.X>= 53&&e.X<= 104)
+                {
+                    if (e.Y >= 192 && e.Y <= 232)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(7);
+                    }
+                    else if (e.Y >= 249 && e.Y <= 289)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(4);
+                    }
+                    else if (e.Y >= 305 && e.Y <= 345)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(1);
+                    }
+                    else if (e.Y >= 362 && e.Y <= 402)
+                    {
+                        Touch = true;
+                        CrewID = lastCrewID;
+                        CREWIDsel = false;
+                    }
+                }
+                else if (e.X >= 134 && e.X <= 185)
+                {
+                    if (e.Y >= 192 && e.Y <= 232)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(8);
+                    }
+                    else if (e.Y >= 249 && e.Y <= 289)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(5);
+                    }
+                    else if (e.Y >= 305 && e.Y <= 345)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(3);
+                    }
+                    else if (e.Y >= 362 && e.Y <= 402)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(0);
+                    }
+                }
+                else if (e.X >= 214 && e.X <= 265)
+                {
+                    Touch = true;
+                    if (e.Y >= 192 && e.Y <= 232)
+                    {
+                        if (CrewID.Count < 3)
+                            CrewID.Add(9);
+                    }
+                    else if (e.Y >= 249 && e.Y <= 289)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(6);
+                    }
+                    else if (e.Y >= 305 && e.Y <= 345)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(3);
+                    }
+                    else if (e.Y >= 362 && e.Y <= 402)
+                    {
+                        Touch = true;
+                        if(CrewID.Count != 3) CrewID = lastCrewID;
+                        CREWIDsel = false;
+                    }
+                }
             }
             else
             {
-                if (e.X >= 0 && e.X <= 50)
+                if (e.X >= 0 && e.X <= 55)
                 {
                     if (e.Y >= 450 && e.Y <= 510)
                     {
@@ -262,10 +355,32 @@ namespace TGMTAts {
                         if (downbuttonClickable) Touch = true;
                         msgpos -= 1;
                     }
+                }else if (e.X >= 210 && e.X <= 307&& e.Y >= 2 && e.Y <= 54)
+                {
+                    Touch = true;
+                    lastCrewID = CrewID;
+                    CREWIDsel = true;
                 }
             }
-            //MessageBox.Show(String.Format("X: {0}, Y: {1}", e.X, e.Y));
+            // MessageBox.Show(String.Format("X: {0}, Y: {1}", e.X, e.Y));
         }
 
     }
 }
+/*
+ CLEAR 53 138 262 176
+ 7 53 192 104 232
+ 8 134 192 185 232
+ 9 214 192 265 232
+ 4 * 249 * 289
+ 5 * 249 * 289
+ 6 * 249 * 289
+ 3 * 305 * 345
+ 2 * 305 * 345
+ 1 * 305 * 345
+ N * 362 * 402
+ 0 * 362 * 402
+ Y * 362 * 402
+
+ ID  210 2 307 54
+*/
