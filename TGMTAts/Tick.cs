@@ -109,6 +109,8 @@ namespace TGMTAts {
                 }
             }
 
+            nowSpeed = state.Speed;
+
             // 显示速度、预选模式、驾驶模式、控制级别、车门模式
             panel[31] = 0;
             panel[1] = Convert.ToInt32(Math.Floor(Math.Abs(state.Speed) * speedMultiplier));

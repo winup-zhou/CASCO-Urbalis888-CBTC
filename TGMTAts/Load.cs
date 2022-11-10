@@ -80,6 +80,7 @@ namespace TGMTAts {
         public static bool CREWIDsel = false;
         public static List<int> CrewID = new List<int>();
         public static List<int> lastCrewID = new List<int>();
+        public static float nowSpeed = 0;
 
         public static double reverseStartLocation = Config.LessInf;
         
