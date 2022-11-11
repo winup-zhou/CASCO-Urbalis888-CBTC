@@ -13,8 +13,9 @@ namespace TGMTAts {
             public int DepartureTime = 0;
             public int DoorOpenType = 0;
             public bool Pass = false;
-            public int ConvertTracktype = 0;
+            public int Stationtype = 0;//下一站类别 0:正线车站 1:进库转换轨 2:出库转换轨 3:折返线/存车线
             public int NextstationNumber = 0;
+            public int ATBtype = 0;//下一站ATB类别 0:不可用 1:不可按压但可用 2:可按压且可用
             public bool OpenLeftDoors { get { return DoorOpenType == 1 || DoorOpenType == 3; } }
             public bool OpenRightDoors { get { return DoorOpenType == 2 || DoorOpenType == 3; } }
         }
@@ -45,13 +46,13 @@ namespace TGMTAts {
                     NextStation.NextstationNumber = TGMTAts.ConvertTime(data.Optional);
                     break;
                 case 96827:
-                    NextStation.ConvertTracktype = data.Optional;
+                    NextStation.Stationtype = data.Optional;
                     break;
             }
         }
 
         public static void Update(TGMTAts.AtsVehicleState state, bool doorState) {
-            if(NextStation.ConvertTracktype == 0)
+            if(NextStation.Stationtype == 0)
             {
                 if (!NextStation.Pass)
                 {
@@ -84,7 +85,7 @@ namespace TGMTAts {
                     }
                 }
             }
-            else if(NextStation.ConvertTracktype == 1)
+            else if(NextStation.Stationtype == 1)
             {
                 //进库转换轨
                 if (state.Location > NextStation.StopPosition + Config.StationEndDistance)
@@ -92,7 +93,7 @@ namespace TGMTAts {
                     TGMTAts.localised = false;
                 }
             }
-            else if (NextStation.ConvertTracktype == 2)
+            else if (NextStation.Stationtype == 2)
             {
                 //出库转换轨
             }
@@ -126,7 +127,7 @@ namespace TGMTAts {
         }
 
         public static SpeedLimit CTCEndpoint() {
-            if (NextStation.ConvertTracktype == 0)
+            if (NextStation.Stationtype == 0)
             {
                 if (TGMTAts.time > NextStation.RouteOpenTime)
                 {
@@ -139,11 +140,8 @@ namespace TGMTAts {
             }
             else
             {
-                if (NextStation.ConvertTracktype == 2 && TGMTAts.time > NextStation.RouteOpenTime)
-                {
-                    return SpeedLimit.inf;
-                }
-                return new SpeedLimit(0, NextStation.StopPosition + Config.StationMotionEndpoint);
+                if (NextStation.Stationtype == 2) return new SpeedLimit(0, NextStation.StopPosition + Config.StationMotionEndpoint);
+                else return SpeedLimit.inf;
             }
         }
     }

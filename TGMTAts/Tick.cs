@@ -112,12 +112,12 @@ namespace TGMTAts {
             nowSpeed = state.Speed;
 
             // 显示速度、预选模式、驾驶模式、控制级别、车门模式
-            panel[31] = 0;
-            panel[1] = Convert.ToInt32(Math.Floor(Math.Abs(state.Speed) * speedMultiplier));
-            panel[22] = BMstatus ? 3 : 4;
-            panel[24] = driveMode;
-            panel[25] = signalMode;
-            panel[28] = (driveMode > 0) ? (driveMode > 1 ? doorMode : 1) : 0;
+            panel_[31] = 0;
+            panel_[1] = Convert.ToInt32(Math.Floor(Math.Abs(state.Speed) * speedMultiplier));
+            panel_[22] = BMstatus ? 3 : 4;
+            panel_[24] = driveMode;
+            panel_[25] = signalMode;
+            panel_[28] = (driveMode > 0) ? (driveMode > 1 ? doorMode : 1) : 0;
 
             if (localised == false || deviceCapability == 0)
             {
@@ -129,7 +129,7 @@ namespace TGMTAts {
                     targetSpeed = 0;
                     targetDistance = -10;
                 }
-                panel[31] = driveMode == 0 ? 2 : 5;
+                panel_[31] = driveMode == 0 ? 2 : 5;
             }
 
             // 显示临时预选模式
@@ -138,7 +138,7 @@ namespace TGMTAts {
                 selectModeStartTime = 0;
             }*/
             if (BMsel) {
-                panel[22] = time % 1000 < 500 ? (BMstatus ? 3 : 4) : 6;
+                panel_[22] = time % 1000 < 500 ? (BMstatus ? 3 : 4) : 6;
             }
 
             // 显示目标速度、建议速度、干预速度
@@ -146,30 +146,30 @@ namespace TGMTAts {
                 targetDistance = 0;
                 targetSpeed = -10;
             }
-            panel[11] = distanceToPixel(targetDistance);
+            panel_[11] = distanceToPixel(targetDistance);
             if (driveMode == 1&& targetDistance > 0 && targetSpeed < ebSpeed)
             {
-                    panel[44] = targetDistance > Config.TargetSpeedShowDistance ? 1 : 0;
+                    panel_[44] = targetDistance > Config.TargetSpeedShowDistance ? 1 : 0;
             }
-            else panel[44] = 1;
-            panel[19] = (int)targetDistance;
+            else panel_[44] = 1;
+            panel_[19] = (int)targetDistance;
             if (driveMode > 0) {
-                panel[16] = (int)(ebSpeed * speedMultiplier);
+                panel_[16] = (int)(ebSpeed * speedMultiplier);
             }
             else
             {
-                panel[16] = -1;
+                panel_[16] = -1;
             }
             if (driveMode < 2) {
-                panel[15] = driveMode == 0 ? -1 :(int)(recommendSpeed_on_dmi * speedMultiplier);
+                panel_[15] = driveMode == 0 ? -1 :(int)(recommendSpeed_on_dmi * speedMultiplier);
             } else {
-                panel[15] = -1;
+                panel_[15] = -1;
             }
             distanceToColor(targetSpeed, targetDistance, panel);
             targetSpeed = Math.Min(targetSpeed, Config.MaxSpeed);
-            panel[17] = (int)targetSpeed;
-            panel[18] = (targetSpeed < 0) ? 1 : 0;
-            panel[29] = 0;
+            panel_[17] = (int)targetSpeed;
+            panel_[18] = (targetSpeed < 0) ? 1 : 0;
+            panel_[29] = 0;
 
             if (ModesAvailable)
             {
@@ -188,12 +188,12 @@ namespace TGMTAts {
             if (signalMode > 1 && state.Speed == 0) {
                 if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.DoorEnableWindow
                     && time > StationManager.NextStation.DepartureTime - Config.DepartRequestTime * 1000 && !doorOpen && StationManager.Arrived) {
-                    panel[32] = 2;
+                    panel_[32] = 2;
                 } else if (doorOpen && time - doorOpenTime >= Config.CloseRequestShowTime * 1000) {
-                    panel[32] = 1;
+                    panel_[32] = 1;
                 } else if(StationManager.Arrived&&state.Time < StationManager.NextStation.RouteOpenTime)
                 {
-                    panel[32] = 3;
+                    panel_[32] = 3;
                     if (state.Speed > 0)
                     {
                         if (Messages[Messages.Count - 1].Item3 > 0)
@@ -208,30 +208,30 @@ namespace TGMTAts {
                     }
                 } 
                 else {
-                    panel[32] = 0;
+                    panel_[32] = 0;
                 }
             } else {
-                panel[32] = 0;
+                panel_[32] = 0;
             }
             if (signalMode >= 2 && state.Speed == 0) {
                 if (doorOpen) {
                     if (time - doorOpenTime >= 1000) {
-                        panel[29] = 3;
+                        panel_[29] = 3;
                     } else {
-                        panel[29] = 0;
+                        panel_[29] = 0;
                     }
                 } else {
                     if (time - doorCloseTime >= 1000) {
-                        panel[29] = 0;
+                        panel_[29] = 0;
                     } else {
-                        panel[29] = 3;
+                        panel_[29] = 3;
                     }
                 }
             }
 
             // 如果没有无线电，显示无线电故障
-            panel[23] = driveMode == 0 ? 1 : 0;
-            panel[30] = deviceCapability != 2 ? 1 : 0;
+            panel_[23] = driveMode == 0 ? 1 : 0;
+            panel_[30] = deviceCapability != 2 ? 1 : 0;
 
             // ATO
             panel[40] = 0;
@@ -249,18 +249,18 @@ namespace TGMTAts {
                     if (notch < 0) {
                         handles.Power = 0;
                         handles.Brake = -notch;
-                        panel[21] = 3;
+                        panel_[21] = 3;
                     } else if (notch > 0) {
                         handles.Power = notch;
                         handles.Brake = 0;
-                        panel[21] = 1;
+                        panel_[21] = 1;
                     } else {
                         handles.Power = 0;
                         handles.Brake = 0;
-                        panel[21] = 2;
+                        panel_[21] = 2;
                     }
                 } else {
-                    panel[21] = 0;
+                    panel_[21] = 0;
                     if (Ato.IsAvailable()) {
                         // 闪烁
                         panel[40] = time % 1000 < 500 ? 1 : 0;
@@ -284,7 +284,7 @@ namespace TGMTAts {
                             ebState = 0;
                         }
                     }
-                    panel[10] = 0;
+                    panel_[10] = 0;
                 } else if (state.Speed > ebSpeed) {
                     // 超出制动干预速度
                     if (ebState == 0)
@@ -299,23 +299,23 @@ namespace TGMTAts {
                     }
                     ebState = 2;
                     if (driveMode > 1) driveMode = 1;
-                    panel[10] = 2;
-                    panel[29] = 2;
+                    panel_[10] = 2;
+                    panel_[29] = 2;
                     sound[0] = sound[0] == 0 ? -10000 : 1;
                     handles.Brake = vehicleSpec.BrakeNotches + 1;
                 } else {
                     if (ebState > 0) {
                         // 刚刚触发紧急制动，继续制动
-                        if (ebState == 2) panel[10] = 2;
-                        panel[29] = 2;
+                        if (ebState == 2) panel_[10] = 2;
+                        panel_[29] = 2;
                         sound[0] = sound[0] == 0 ? -10000 : 1;
                         handles.Brake = vehicleSpec.BrakeNotches + 1;
                     } else if (driveMode == 1 && state.Speed > recommendSpeed_on_dmi + 1.5) {
                         // 超出建议速度，显示警告
-                        panel[10] = 1;
+                        panel_[10] = 1;
                         sound[0] = 0;
                     } else {
-                        panel[10] = 0;
+                        panel_[10] = 0;
                         sound[0] = -10000;
                     }
                 }
@@ -339,11 +339,11 @@ namespace TGMTAts {
                 }
                 ebState = 2;
                 // 显示紧急制动、目标距离0、速度0
-                panel[10] = 2;
-                panel[29] = 2;
-                panel[11] = 0;
-                panel[19] = 0;
-                panel[17] = 0;
+                panel_[10] = 2;
+                panel_[29] = 2;
+                panel_[11] = 0;
+                panel_[19] = 0;
+                panel_[17] = 0;
                 handles.Brake = vehicleSpec.BrakeNotches + 1;
             }
             
@@ -352,8 +352,8 @@ namespace TGMTAts {
                 handles.Brake = 1;
             }
             if (doorOpen) {
-                panel[15] = -10 * speedMultiplier;
-                panel[16] = driveMode == 0 ? -10 : 0;
+                panel_[15] = -10 * speedMultiplier;
+                panel_[16] = driveMode == 0 ? -10 : 0;
                 if (handles.Brake < 4) handles.Brake = 4;
             }
 
@@ -371,7 +371,7 @@ namespace TGMTAts {
                 reverseStartLocation = Config.LessInf;
             }
 
-            if (state.Speed > 0)
+            if (state.Speed > 0 && state.Location < StationManager.NextStation.StopPosition + Config.StationEndDistance)
             {
                 if (doorOpen)
                 {
@@ -387,7 +387,7 @@ namespace TGMTAts {
                     }
                     ebState = 2;
                 }
-                else if (doorOpen && panel[29] == 3)
+                else if (doorOpen && panel_[29] == 3)
                 {
                     if (ebState == 0)
                     {
@@ -404,12 +404,12 @@ namespace TGMTAts {
             }
 
             // 显示释放速度、确认消息
-           /* if (releaseSpeed) panel[31] = 3;
+           /* if (releaseSpeed) panel_[31] = 3;
             if (ackMessage > 0) {
-                panel[35] = ackMessage;
-                //panel[36] = ((state.Time / 1000) % 1 < 0.5) ? 1 : 0;
+                panel_[35] = ackMessage;
+                //panel_[36] = ((state.Time / 1000) % 1 < 0.5) ? 1 : 0;
             } else {
-                panel[35] = 0;
+                panel_[35] = 0;
             }*/
 
             // 显示TDT、车门使能，车门零速保护
@@ -424,126 +424,126 @@ namespace TGMTAts {
                             // 出站信号绿灯
                             if (sectogo < 0) {
                                 // 未到发车时间
-                                panel[102] = -1;
+                                panel_[102] = -1;
                             } else {
-                                panel[102] = 1;
+                                panel_[102] = 1;
                             }
                         } else {
                             // 出站信号红灯
-                            panel[102] = -1;
+                            panel_[102] = -1;
                         }
                         if (sectogo < 0) {
                             // 未到发车时间
-                            panel[102] = -1;
+                            panel_[102] = -1;
                         } else {
-                            panel[102] = 1;
+                            panel_[102] = 1;
                         }
-                        panel[101] = Math.Min(Math.Abs(sectogo), 999);
+                        panel_[101] = Math.Min(Math.Abs(sectogo), 999);
                     } else {
                         // 已发车
-                        panel[102] = -1;
+                        panel_[102] = -1;
                     }
                 } else {
-                    panel[102] = 0;
-                    panel[101] = 0;
+                    panel_[102] = 0;
+                    panel_[101] = 0;
                 }
-                if (StationManager.NextStation.DepartureTime < 0.1) panel[102] = 0;
+                if (StationManager.NextStation.DepartureTime < 0.1) panel_[102] = 0;
                 if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.StationStartDistance) {
                     // 在车站范围内
-                    if (signalMode == 2&&!StationManager.NextStation.Pass && StationManager.NextStation.StopPosition - location > Config.StationStartDistance - 50) panel[29] = 4;
+                    if (signalMode == 2&&!StationManager.NextStation.Pass && StationManager.NextStation.StopPosition - location > Config.StationStartDistance - 50) panel_[29] = 4;
                     if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.DoorEnableWindow) {
                         // 在停车窗口内
                         if (state.Speed < 1) {
-                            panel[26] = 2;
+                            panel_[26] = 2;
                         } else {
-                            panel[26] = 1;
+                            panel_[26] = 1;
                         }
                         if (state.Speed == 0) {
                             // 停稳, 可以解锁车门, 解锁对应方向车门
                             if (StationManager.NextStation.OpenLeftDoors) {
-                                panel[27] = time % 1000 < 500 ? 1 : 0;
+                                panel_[27] = time % 1000 < 500 ? 1 : 0;
                             } else if (StationManager.NextStation.OpenRightDoors) {
-                                panel[27] = time % 1000 < 500 ? 2 : 0;
+                                panel_[27] = time % 1000 < 500 ? 2 : 0;
                             } else {
-                                panel[27] = 0;
+                                panel_[27] = 0;
                             }
                             if (doorOpen) {
                                 if (StationManager.NextStation.OpenLeftDoors)
                                 {
-                                    panel[27] = 1;
+                                    panel_[27] = 1;
                                 }
                                 else if (StationManager.NextStation.OpenRightDoors)
                                 {
-                                    panel[27] = 2;
+                                    panel_[27] = 2;
                                 } // 切换成已开门图像
                             }
                         } else {
-                            panel[27] = 0;
+                            panel_[27] = 0;
                         }
                     } else {
                         // 不在停车窗口内
-                        panel[26] = 1;
-                        panel[27] = 0;
+                        panel_[26] = 1;
+                        panel_[27] = 0;
                     }
                 } else {
                     // 不在车站范围内
-                    panel[26] = 0;
-                    panel[27] = 0;
+                    panel_[26] = 0;
+                    panel_[27] = 0;
                 }
                 if (signalMode == 0) {
                     // RM-IXL, 门要是开了就当它按了门允许, 没有车门使能和停车窗口指示
-                    panel[26] = 0;
-                    panel[27] = doorOpen ? 4 : 0;
-                    if(doorOpen) panel[29] = deviceCapability != 2 ? 0 : 4;
+                    panel_[26] = 0;
+                    panel_[27] = doorOpen ? 4 : 0;
+                    if(doorOpen) panel_[29] = deviceCapability != 2 ? 0 : 4;
                 }
             }
 
-            if (StationManager.NextStation.Pass && Math.Abs(StationManager.NextStation.StopPosition - location) < Config.StationStartDistance + 200) panel[31] = 1;
+            if (StationManager.NextStation.Pass && Math.Abs(StationManager.NextStation.StopPosition - location) < Config.StationStartDistance + 200) panel_[31] = 1;
 
             //手动EB,只能停车后缓解
             if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed != 0) ebState = 1;
-            //if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed == 0) panel[29] = 2;
+            //if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed == 0) panel_[29] = 2;
 
 
             if (driveMode==0)
             {
-                panel[43] = 1;
+                panel_[43] = 1;
             }
             else
             {
-                panel[43] = 0;
+                panel_[43] = 0;
             }
 
             if (driveMode != 2) { 
                 if (handles.Brake > 0)
                 {
-                    panel[21] = 3;
+                    panel_[21] = 3;
                 }
                 else if (handles.Power > 0)
                 {
-                    panel[21] = 1;
+                    panel_[21] = 1;
                 }
                 else if (handles.Power == 0 && handles.Brake == 0)
                 {
-                    panel[21] = 2;
+                    panel_[21] = 2;
                 } 
             }
 
             // 信号灯
             if (signalMode >= 2) {
-                panel[41] = 2;
+                panel_[41] = 2;
             } else {
                 if (doorOpen) {
                     if (time - doorOpenTime >= 1000) {
-                        panel[41] = 1;
+                        panel_[41] = 1;
                     } else {
-                        panel[41] = 0;
+                        panel_[41] = 0;
                     }
                 } else {
                     if (time - doorCloseTime >= 1000) {
-                        panel[41] = 0;
+                        panel_[41] = 0;
                     } else {
-                        panel[41] = 1;
+                        panel_[41] = 1;
                     }
                 }
             }
@@ -591,114 +591,114 @@ namespace TGMTAts {
                     downbuttonClickable = false;
                     if (Messages.Count == 1)
                     {
-                        panel[55] = 11;
-                        panel[56] = 11;
-                        panel[57] = 11;
-                        panel[58] = 11;
-                        panel[59] = 0;
-                        panel[50] = 11;
-                        panel[51] = 11;
-                        panel[52] = 11;
-                        panel[53] = 11;
-                        panel[54] = 0;
-                        panel[45] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                        panel[46] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                        panel[47] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                        panel[48] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
-                        panel[49] = Messages[0].Item2;
+                        panel_[55] = 11;
+                        panel_[56] = 11;
+                        panel_[57] = 11;
+                        panel_[58] = 11;
+                        panel_[59] = 0;
+                        panel_[50] = 11;
+                        panel_[51] = 11;
+                        panel_[52] = 11;
+                        panel_[53] = 11;
+                        panel_[54] = 0;
+                        panel_[45] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
+                        panel_[46] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
+                        panel_[47] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
+                        panel_[48] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
+                        panel_[49] = Messages[0].Item2;
                     }
                     else if (Messages.Count == 2)
                     {
-                        panel[55] = 11;
-                        panel[56] = 11;
-                        panel[57] = 11;
-                        panel[58] = 11;
-                        panel[59] = 0;
-                        panel[50] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                        panel[51] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                        panel[52] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                        panel[53] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
-                        panel[54] = Messages[0].Item2;
-                        panel[45] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
-                        panel[46] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
-                        panel[47] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
-                        panel[48] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
-                        panel[49] = Messages[1].Item2;
+                        panel_[55] = 11;
+                        panel_[56] = 11;
+                        panel_[57] = 11;
+                        panel_[58] = 11;
+                        panel_[59] = 0;
+                        panel_[50] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
+                        panel_[51] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
+                        panel_[52] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
+                        panel_[53] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
+                        panel_[54] = Messages[0].Item2;
+                        panel_[45] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
+                        panel_[46] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
+                        panel_[47] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
+                        panel_[48] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
+                        panel_[49] = Messages[1].Item2;
                     }
                     else if (Messages.Count == 3)
                     {
-                        panel[55] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                        panel[56] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                        panel[57] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                        panel[58] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
-                        panel[59] = Messages[0].Item2;
-                        panel[50] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
-                        panel[51] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
-                        panel[52] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
-                        panel[53] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
-                        panel[54] = Messages[1].Item2;
-                        panel[45] = D(Messages[2].Item1 / 1000 / 3600 % 60, 1);
-                        panel[46] = D(Messages[2].Item1 / 1000 / 3600 % 60, 0);
-                        panel[47] = D(Messages[2].Item1 / 1000 / 60 % 60, 1);
-                        panel[48] = D(Messages[2].Item1 / 1000 / 60 % 60, 0);
-                        panel[49] = Messages[2].Item2;
+                        panel_[55] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
+                        panel_[56] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
+                        panel_[57] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
+                        panel_[58] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
+                        panel_[59] = Messages[0].Item2;
+                        panel_[50] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
+                        panel_[51] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
+                        panel_[52] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
+                        panel_[53] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
+                        panel_[54] = Messages[1].Item2;
+                        panel_[45] = D(Messages[2].Item1 / 1000 / 3600 % 60, 1);
+                        panel_[46] = D(Messages[2].Item1 / 1000 / 3600 % 60, 0);
+                        panel_[47] = D(Messages[2].Item1 / 1000 / 60 % 60, 1);
+                        panel_[48] = D(Messages[2].Item1 / 1000 / 60 % 60, 0);
+                        panel_[49] = Messages[2].Item2;
                     }
 
                     else
                     {
                         msgpos = Messages.Count - 1;
-                        panel[55] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 1);
-                        panel[56] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 0);
-                        panel[57] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 1);
-                        panel[58] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 0);
-                        panel[59] = Messages[msgpos - 2].Item2;
-                        panel[50] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 1);
-                        panel[51] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 0);
-                        panel[52] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 1);
-                        panel[53] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 0);
-                        panel[54] = Messages[msgpos - 1].Item2;
-                        panel[45] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 1);
-                        panel[46] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 0);
-                        panel[47] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 1);
-                        panel[48] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 0);
-                        panel[49] = Messages[msgpos].Item2;
+                        panel_[55] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 1);
+                        panel_[56] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 0);
+                        panel_[57] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 1);
+                        panel_[58] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 0);
+                        panel_[59] = Messages[msgpos - 2].Item2;
+                        panel_[50] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 1);
+                        panel_[51] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 0);
+                        panel_[52] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 1);
+                        panel_[53] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 0);
+                        panel_[54] = Messages[msgpos - 1].Item2;
+                        panel_[45] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 1);
+                        panel_[46] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 0);
+                        panel_[47] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 1);
+                        panel_[48] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 0);
+                        panel_[49] = Messages[msgpos].Item2;
                     }
-                    panel[60] = 1;
+                    panel_[60] = 1;
                     if (state.Time - MsglastShowTime > 5000)
                     {
                         Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
                         Messages.RemoveAt(Messages.Count - 2);
                         sound[1] = -10000;
-                        panel[60] = 0;
+                        panel_[60] = 0;
                     }
 
                 }
                 else if (Messages[Messages.Count - 1].Item3 == 2)
                 {
-                    panel[60] = 0;
+                    panel_[60] = 0;
                     upbuttonClickable = false;
                     downbuttonClickable = false;
-                    panel[36] = 1;
-                    panel[55] = 11;
-                    panel[56] = 11;
-                    panel[57] = 11;
-                    panel[58] = 11;
-                    panel[59] = 0;
-                    panel[50] = 11;
-                    panel[51] = 11;
-                    panel[52] = 11;
-                    panel[53] = 11;
-                    panel[54] = Messages[Messages.Count - 1].Item2;
-                    panel[45] = 11;
-                    panel[46] = 11;
-                    panel[47] = 11;
-                    panel[48] = 11;
-                    panel[49] = 0;
+                    panel_[36] = 1;
+                    panel_[55] = 11;
+                    panel_[56] = 11;
+                    panel_[57] = 11;
+                    panel_[58] = 11;
+                    panel_[59] = 0;
+                    panel_[50] = 11;
+                    panel_[51] = 11;
+                    panel_[52] = 11;
+                    panel_[53] = 11;
+                    panel_[54] = Messages[Messages.Count - 1].Item2;
+                    panel_[45] = 11;
+                    panel_[46] = 11;
+                    panel_[47] = 11;
+                    panel_[48] = 11;
+                    panel_[49] = 0;
                     if (state.Time - MsglastShowTime > 5000)
                     {
                         Messages.Add(new Tuple<int, int, int>(Messages[Messages.Count - 1].Item1, Messages[Messages.Count - 1].Item2, 0));
                         Messages.RemoveAt(Messages.Count - 2);
-                        panel[36] = 0;
+                        panel_[36] = 0;
                         if (Messages.Count > 3) msgpos = Messages.Count - 1;
                         sound[1] = -10000;
                     }
@@ -720,78 +720,78 @@ namespace TGMTAts {
                 }
                 if (Messages.Count == 1)
                 {
-                    panel[55] = 11;
-                    panel[56] = 11;
-                    panel[57] = 11;
-                    panel[58] = 11;
-                    panel[59] = 0;
-                    panel[50] = 11;
-                    panel[51] = 11;
-                    panel[52] = 11;
-                    panel[53] = 11;
-                    panel[54] = 0;
-                    panel[45] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                    panel[46] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                    panel[47] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                    panel[48] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
-                    panel[49] = Messages[0].Item2;
+                    panel_[55] = 11;
+                    panel_[56] = 11;
+                    panel_[57] = 11;
+                    panel_[58] = 11;
+                    panel_[59] = 0;
+                    panel_[50] = 11;
+                    panel_[51] = 11;
+                    panel_[52] = 11;
+                    panel_[53] = 11;
+                    panel_[54] = 0;
+                    panel_[45] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
+                    panel_[46] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
+                    panel_[47] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
+                    panel_[48] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
+                    panel_[49] = Messages[0].Item2;
                 }
                 else if (Messages.Count == 2)
                 {
-                    panel[55] = 11;
-                    panel[56] = 11;
-                    panel[57] = 11;
-                    panel[58] = 11;
-                    panel[59] = 0;
-                    panel[50] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                    panel[51] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                    panel[52] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                    panel[53] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
-                    panel[54] = Messages[0].Item2;
-                    panel[45] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
-                    panel[46] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
-                    panel[47] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
-                    panel[48] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
-                    panel[49] = Messages[1].Item2;
+                    panel_[55] = 11;
+                    panel_[56] = 11;
+                    panel_[57] = 11;
+                    panel_[58] = 11;
+                    panel_[59] = 0;
+                    panel_[50] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
+                    panel_[51] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
+                    panel_[52] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
+                    panel_[53] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
+                    panel_[54] = Messages[0].Item2;
+                    panel_[45] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
+                    panel_[46] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
+                    panel_[47] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
+                    panel_[48] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
+                    panel_[49] = Messages[1].Item2;
                 }
                 else if (Messages.Count == 3)
                 {
-                    panel[55] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                    panel[56] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                    panel[57] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                    panel[58] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
-                    panel[59] = Messages[0].Item2;
-                    panel[50] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
-                    panel[51] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
-                    panel[52] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
-                    panel[53] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
-                    panel[54] = Messages[1].Item2;
-                    panel[45] = D(Messages[2].Item1 / 1000 / 3600 % 60, 1);
-                    panel[46] = D(Messages[2].Item1 / 1000 / 3600 % 60, 0);
-                    panel[47] = D(Messages[2].Item1 / 1000 / 60 % 60, 1);
-                    panel[48] = D(Messages[2].Item1 / 1000 / 60 % 60, 0);
-                    panel[49] = Messages[2].Item2;
+                    panel_[55] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
+                    panel_[56] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
+                    panel_[57] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
+                    panel_[58] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
+                    panel_[59] = Messages[0].Item2;
+                    panel_[50] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
+                    panel_[51] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
+                    panel_[52] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
+                    panel_[53] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
+                    panel_[54] = Messages[1].Item2;
+                    panel_[45] = D(Messages[2].Item1 / 1000 / 3600 % 60, 1);
+                    panel_[46] = D(Messages[2].Item1 / 1000 / 3600 % 60, 0);
+                    panel_[47] = D(Messages[2].Item1 / 1000 / 60 % 60, 1);
+                    panel_[48] = D(Messages[2].Item1 / 1000 / 60 % 60, 0);
+                    panel_[49] = Messages[2].Item2;
                 }
 
                 else
                 {
-                    panel[36] = 0;
-                    panel[60] = 0;
-                    panel[55] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 1);
-                    panel[56] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 0);
-                    panel[57] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 1);
-                    panel[58] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 0);
-                    panel[59] = Messages[msgpos - 2].Item2;
-                    panel[50] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 1);
-                    panel[51] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 0);
-                    panel[52] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 1);
-                    panel[53] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 0);
-                    panel[54] = Messages[msgpos - 1].Item2;
-                    panel[45] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 1);
-                    panel[46] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 0);
-                    panel[47] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 1);
-                    panel[48] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 0);
-                    panel[49] = Messages[msgpos].Item2;
+                    panel_[36] = 0;
+                    panel_[60] = 0;
+                    panel_[55] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 1);
+                    panel_[56] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 0);
+                    panel_[57] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 1);
+                    panel_[58] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 0);
+                    panel_[59] = Messages[msgpos - 2].Item2;
+                    panel_[50] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 1);
+                    panel_[51] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 0);
+                    panel_[52] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 1);
+                    panel_[53] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 0);
+                    panel_[54] = Messages[msgpos - 1].Item2;
+                    panel_[45] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 1);
+                    panel_[46] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 0);
+                    panel_[47] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 1);
+                    panel_[48] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 0);
+                    panel_[49] = Messages[msgpos].Item2;
                 }
             }
 
@@ -800,16 +800,15 @@ namespace TGMTAts {
                 var nowAcc = (state.Speed * state.Speed - lastSpeed * lastSpeed) / state.Location - lastlocation / 2;
                 var wheelSpeed = (state.Speed + lastSpeed) / 2;
                 var normalSpeed = ((state.Location - lastlocation) / ((state.Time - lastJudgeTime) / 1000)) * 3.6;
-                if (panel[29] != 2 && lastAcc != 0 && lastlocation != 0 && lastJudgeTime != 0)
+                if (panel_[29] != 2 && lastAcc != 0 && lastlocation != 0 && lastJudgeTime != 0)
                 {
                     if (Math.Abs(wheelSpeed - normalSpeed) > 3 && Math.Abs(wheelSpeed - normalSpeed) <= 6)
                     {
-                        panel[29] = state.Time % 1000 < 500 ? 1 : 0;
-                        wheelslip = true;
+                        panel_[29] = state.Time % 1000 < 500 ? 1 : 0;
                     }
                     else if (Math.Abs(wheelSpeed - normalSpeed) > 6)
                     {
-                        panel[29] = 1;
+                        panel_[29] = 1;
                         wheelslip = true;
                     }
                     else
@@ -829,8 +828,8 @@ namespace TGMTAts {
             if (lastDrawTime > state.Time) lastDrawTime = 0;
             if (state.Time - lastDrawTime > 100) {
                 lastDrawTime = state.Time;
-                panel[42] += 1;
-                panel[42] %= 12;
+                panel_[42] += 1;
+                panel_[42] %= 12;
                 TGMTPainter.PaintHMI(panel, state);
                 TGMTPainter.PaintTDT(panel, state);
                 //TextureManager.UpdateTexture(TextureManager.HmiTexture, TGMTPainter.PaintHMI(panel, state));
@@ -876,29 +875,29 @@ namespace TGMTAts {
         // 根据把目标距离设定距离条的颜色。
         private static void distanceToColor(double targetspeed, double targetdistance, AtsIoArray panel) {
             if (targetspeed < 0) {
-                panel[12] = 0; panel[13] = 0; panel[14] = 0;
+                panel_[12] = 0; panel_[13] = 0; panel_[14] = 0;
             } else if (targetspeed == 0) {
                 if (targetdistance < 150) {
-                    panel[12] = 1; panel[13] = 0; panel[14] = 0;
+                    panel_[12] = 1; panel_[13] = 0; panel_[14] = 0;
                 } else if (targetdistance < 300) {
-                    panel[12] = 0; panel[13] = 1; panel[14] = 0;
+                    panel_[12] = 0; panel_[13] = 1; panel_[14] = 0;
                 } else {
-                    panel[12] = 0; panel[13] = 0; panel[14] = 1;
+                    panel_[12] = 0; panel_[13] = 0; panel_[14] = 1;
                 }
             } else if (targetspeed <= 25) {
                 if (targetdistance < 300) {
-                    panel[12] = 0; panel[13] = 1; panel[14] = 0;
+                    panel_[12] = 0; panel_[13] = 1; panel_[14] = 0;
                 } else {
-                    panel[12] = 0; panel[13] = 0; panel[14] = 1;
+                    panel_[12] = 0; panel_[13] = 0; panel_[14] = 1;
                 }
             } else if (targetspeed <= 60) {
                 if (targetdistance < 150) {
-                    panel[12] = 0; panel[13] = 1; panel[14] = 0;
+                    panel_[12] = 0; panel_[13] = 1; panel_[14] = 0;
                 } else {
-                    panel[12] = 0; panel[13] = 0; panel[14] = 1;
+                    panel_[12] = 0; panel_[13] = 0; panel_[14] = 1;
                 }
             } else {
-                panel[12] = 0; panel[13] = 0; panel[14] = 1;
+                panel_[12] = 0; panel_[13] = 0; panel_[14] = 1;
             }
         }
 

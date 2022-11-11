@@ -14,7 +14,7 @@ namespace TGMTAts {
         public static TouchTextureHandle HmiTexture;
         public static TextureHandle TdtTexture;
 
-        public static int[] panel = new int[256];
+        public static int[] panel_ = new int[256];
         public static bool doorOpen;
         public static AtsVehicleSpec vehicleSpec;
         public static double location = -114514;
