@@ -4,6 +4,10 @@
 
 支持ATO和ATP的模拟以及不同信号等级下的信号系统动作
 
+**建议与BUG反馈**  
+如果您是非中国大陆用户，请直接在本存储库开issue报告问题。  
+如果您是中国大陆用户，请填写[本收集表](https://docs.qq.com/form/page/DSWZHY09nWXdkcXpO)反馈问题。  
+
 **编写工作正在进行...**
 
 **TODO list**
