@@ -225,6 +225,7 @@ namespace TGMTAts {
                     {
                         Touch = true;
                         RMstatus = false;
+                        selectedMode = BMstatus ? 3 : 4;
                         ebState = 0;
                         signalMode = 0;
                         FixIncompatibleModes();

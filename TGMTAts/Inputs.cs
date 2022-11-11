@@ -46,13 +46,7 @@ namespace TGMTAts{
                     driveMode = 2;
                 }
             } else if (key == AtsKey.A2) {
-                if (!RMsel && !BMsel && !(nowSpeed > 0)) RMsel = true;
-                else if (nowSpeed < 25)
-                {
-                    ebState = 0;
-                    signalMode = 0;
-                    FixIncompatibleModes();
-                }
+                if (!RMsel && !BMsel&& !(nowSpeed > 0)) RMsel = true;
             } else if (key == AtsKey.B2) {
                 if (!RMsel && !BMsel && !(nowSpeed > 0)) BMsel = true;
             }

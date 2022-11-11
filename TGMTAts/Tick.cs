@@ -119,18 +119,6 @@ namespace TGMTAts {
             panel_[25] = signalMode;
             panel_[28] = (driveMode > 0) ? (driveMode > 1 ? doorMode : 1) : 0;
 
-            if (localised == false || deviceCapability == 0)
-            {
-                if (driveMode != 0)
-                {
-                    recommendSpeed_on_dmi = 0;
-                    recommendSpeed = 0;
-                    ebSpeed = 0;
-                    targetSpeed = 0;
-                    targetDistance = -10;
-                }
-                panel_[31] = driveMode == 0 ? 2 : 5;
-            }
 
             // 显示临时预选模式
             /*if (state.Speed != 0 || time > selectModeStartTime + Config.ModeSelectTimeout * 1000) {
@@ -268,6 +256,19 @@ namespace TGMTAts {
                 }
             }
 
+            if (localised == false || deviceCapability == 0)
+            {
+                if (driveMode != 0)
+                {
+                    recommendSpeed_on_dmi = 0;
+                    recommendSpeed = 0;
+                    ebSpeed = 0;
+                    targetSpeed = 0;
+                    targetDistance = -10;
+                }
+                panel_[31] = driveMode == 0 ? 2 : 5;
+            }
+
             // ATP 制动干预部分
             if (ebSpeed > 0) {
                 // 有移动授权
@@ -276,6 +277,7 @@ namespace TGMTAts {
                     if (ebState > 0) {
                         if (location > movementEndpoint.Location) {
                             // 冲出移动授权终点，要求RM
+                            sound[0] = -10000;
                             recommendSpeed_on_dmi = 0;
                             recommendSpeed = 0;
                             ebSpeed = 0;
@@ -323,6 +325,7 @@ namespace TGMTAts {
                 // ITC下冲出移动授权终点。
                 if (state.Speed == 0) {
                     // 停稳后降级到RM模式。等待确认。
+                    sound[0] = -10000;
                     recommendSpeed_on_dmi = 0;
                     recommendSpeed = 0;
                     ebSpeed = 0;
@@ -453,11 +456,9 @@ namespace TGMTAts {
                     if (signalMode == 2&&!StationManager.NextStation.Pass && StationManager.NextStation.StopPosition - location > Config.StationStartDistance - 50) panel_[29] = 4;
                     if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.DoorEnableWindow) {
                         // 在停车窗口内
-                        if (state.Speed < 1) {
                             panel_[26] = 2;
-                        } else {
-                            panel_[26] = 1;
-                        }
+                        if (StationManager.NextStation.OpenLeftDoors || StationManager.NextStation.OpenRightDoors) panel[27] = 1;
+                        else panel[27] = 0;
                         if (state.Speed == 0) {
                             // 停稳, 可以解锁车门, 解锁对应方向车门
                             if (StationManager.NextStation.OpenLeftDoors) {
@@ -504,6 +505,10 @@ namespace TGMTAts {
             if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed != 0) ebState = 1;
             //if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed == 0) panel_[29] = 2;
 
+            //各种按钮和指示灯
+            panel[28] = signalMode == 2 ? 1 : 0;//CBTC指示
+            if ((driveMode != 0 || RMstatus) && state.Speed < 1) panel[29] = 1;
+            else panel[29] = 0;
 
             if (driveMode==0)
             {
