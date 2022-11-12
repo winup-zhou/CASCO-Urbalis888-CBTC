@@ -202,8 +202,8 @@ namespace TGMTAts {
                     g800.DrawImage(numn0, 36, 110, D(TGMTAts.panel_[17], 2) * 18, 18);
                 }
 
-                g800.DrawImage(num0, 282, 229, D((int)state.Speed, 0) * 18, 18);
-                g800.DrawImage(numn0, 268, 229, D((int)state.Speed, 1) * 18, 18);
+                g800.DrawImage(num0, 282, 229, D((int)Math.Abs(state.Speed), 0) * 18, 18);
+                g800.DrawImage(numn0, 268, 229, D((int)Math.Abs(state.Speed), 1) * 18, 18);
 
 
 
