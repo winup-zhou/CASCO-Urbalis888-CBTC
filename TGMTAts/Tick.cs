@@ -142,18 +142,7 @@ namespace TGMTAts {
             }
             else panel_[44] = 1;
             panel_[19] = (int)targetDistance;
-            if (driveMode > 0) {
-                panel_[16] = (int)(ebSpeed * speedMultiplier);
-            }
-            else
-            {
-                panel_[16] = -1;
-            }
-            if (driveMode < 2) {
-                panel_[15] = driveMode == 0 ? -1 :(int)(recommendSpeed_on_dmi * speedMultiplier);
-            } else {
-                panel_[15] = -1;
-            }
+ 
             distanceToColor(targetSpeed, targetDistance, panel);
             targetSpeed = Math.Min(targetSpeed, Config.MaxSpeed);
             panel_[17] = (int)targetSpeed;
@@ -258,30 +247,20 @@ namespace TGMTAts {
                 }
             }
 
-            if (localised == false || deviceCapability == 0)
-            {
-                if (driveMode != 0)
-                {
-                    recommendSpeed_on_dmi = 0;
-                    recommendSpeed = 0;
-                    ebSpeed = 0;
-                    targetSpeed = 0;
-                    targetDistance = -10;
-                }
-                panel_[31] = driveMode == 0 ? 2 : 5;
-            }
-
             // ATP 制动干预部分
             if (ebSpeed > 0) {
                 // 有移动授权
-                if (state.Speed == 0 && handles.Power == 0) {
+                if (state.Speed == 0 && handles.Brake == vehicleSpec.BrakeNotches + 1) {
                     // 低于制动缓解速度
                     if (ebState > 0) {
                         if (location > movementEndpoint.Location) {
                             // 冲出移动授权终点，要求RM
+                            handles.Brake = vehicleSpec.BrakeNotches + 1;
                             recommendSpeed_on_dmi = 0;
-                            recommendSpeed = 0;
+                            recommendSpeed = -10;
                             ebSpeed = 0;
+                            targetSpeed = 0;
+                            targetDistance = -10;
                         } else {
                             handles.Brake = 0;
                             ebState = 0;
@@ -326,9 +305,12 @@ namespace TGMTAts {
                 // ITC下冲出移动授权终点。
                 if (state.Speed == 0) {
                     // 停稳后降级到RM模式。等待确认。
+                    handles.Brake = vehicleSpec.BrakeNotches + 1;
                     recommendSpeed_on_dmi = 0;
-                    recommendSpeed = 0;
+                    recommendSpeed = -10;
                     ebSpeed = 0;
+                    targetSpeed = 0;
+                    targetDistance = -10;
                 }
                 if (ebState == 0)
                 {
@@ -349,7 +331,7 @@ namespace TGMTAts {
                 panel_[17] = 0;
                 handles.Brake = vehicleSpec.BrakeNotches + 1;
             }
-            
+
             // 防溜、车门零速保护
             if (state.Speed < 0.5 && handles.Power < 1 && handles.Brake < 1) {
                 handles.Brake = 1;
@@ -498,24 +480,62 @@ namespace TGMTAts {
                         // 不在停车窗口内
                         panel_[26] = 1;
                         panel_[27] = 0;
+                        panel[27] = 0;
                     }
                 } else {
                     // 不在车站范围内
                     panel_[26] = 0;
                     panel_[27] = 0;
+                    panel[27] = 0;
                 }
                 if (signalMode == 0) {
                     // RM-IXL, 门要是开了就当它按了门允许, 没有车门使能和停车窗口指示
                     panel_[26] = 0;
                     panel_[27] = doorOpen ? 4 : 0;
-                    if(doorOpen) panel_[29] = deviceCapability != 2 ? 0 : 4;
+                    panel[27] = 0;
+                    if (doorOpen&&localised) panel_[29] = deviceCapability != 2 ? 0 : 4;
                 }
+            }
+
+            if (localised == false || deviceCapability == 0)
+            {
+                if (driveMode != 0)
+                {
+                    panel_[32] = panel_[26] = 0;
+                    panel_[27] = doorOpen ? 4 : 0;
+                    handles.Brake = vehicleSpec.BrakeNotches + 1;
+                    recommendSpeed_on_dmi = 0;
+                    recommendSpeed = -10;
+                    ebSpeed = 0;
+                    targetSpeed = 0;
+                    targetDistance = -10;
+                }
+                panel_[31] = driveMode == 0 ? 2 : 5;
+            }
+
+            if (driveMode > 0)
+            {
+                panel_[16] = (int)(ebSpeed * speedMultiplier);
+            }
+            else
+            {
+                panel_[16] = -1;
+            }
+            if (driveMode < 2)
+            {
+                panel_[15] = driveMode == 0 ? -1 : (int)(recommendSpeed_on_dmi * speedMultiplier);
+            }
+            else
+            {
+                panel_[15] = -1;
             }
 
             if (StationManager.NextStation.Pass && Math.Abs(StationManager.NextStation.StopPosition - location) < Config.StationStartDistance + 200) panel_[31] = 1;
 
             //手动EB,只能停车后缓解
             if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed != 0) ebState = 1;
+            else if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed == 0) { panel_[29] = 2; sound[0] = 1; }
+            else if (handles.Brake != vehicleSpec.BrakeNotches + 1 && !wheelslip&&!(driveMode == 1 && state.Speed > recommendSpeed_on_dmi + 1.5)&&ebState == 0) sound[0] = -10000;
             //if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed == 0) panel_[29] = 2;
 
             //各种按钮和指示灯
@@ -548,7 +568,7 @@ namespace TGMTAts {
             }
 
             // 信号灯
-            if (signalMode >= 2) {
+           /* if (signalMode >= 2) {
                 panel_[41] = 2;
             } else {
                 if (doorOpen) {
@@ -564,7 +584,7 @@ namespace TGMTAts {
                         panel_[41] = 1;
                     }
                 }
-            }
+            }*/
 
             if ((BMsel || RMsel) && state.Speed > 0 && ebState == 0)
             {

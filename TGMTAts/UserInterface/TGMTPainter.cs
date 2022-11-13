@@ -97,7 +97,7 @@ namespace TGMTAts {
 
                 g800.DrawImage(menu, 535, 522, TGMTAts.panel_[23] * 61, 61);
 
-                if (Math.Abs(StationManager.NextStation.StopPosition - state.Location) < Config.DoorEnableWindow && TGMTAts.signalMode > 0 && state.Speed < 1)
+                if (Math.Abs(StationManager.NextStation.StopPosition - state.Location) < Config.DoorEnableWindow && TGMTAts.signalMode > 0 && state.Speed < 1 &&TGMTAts.localised)
                 {
                     int sectogo = Convert.ToInt32((state.Time - StationManager.NextStation.DepartureTime) / 1000);
                     g800.DrawImage(tdt_dmi, 524, 72, 1 * 50, 50);
@@ -190,8 +190,8 @@ namespace TGMTAts {
                 g800.DrawImage(num1, 111, 521, TGMTAts.panel_[57] * 13, 13);
                 g800.DrawImage(num1, 121, 521, TGMTAts.panel_[58] * 13, 13);
 
-                g800.DrawImage(atoctrl, 55, 395, TGMTAts.panel_[21] * 50, 50);
-                g800.DrawImage(selmode, 153, 395, TGMTAts.panel_[22] * 50, 50);
+                g800.DrawImage(atoctrl, 30, 395, TGMTAts.panel_[21] * 50, 50);
+                g800.DrawImage(selmode, 130, 395, TGMTAts.panel_[22] * 50, 50);
 
                 g800.DrawImage(alive, 20, 550, TGMTAts.panel_[42] * 45, 45);
 
