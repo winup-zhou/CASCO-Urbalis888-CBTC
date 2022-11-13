@@ -23,5 +23,11 @@
 - [ ] 自动折返
 - [ ] 转换轨
 
+**本插件的运行需要DXDynamicTexture作为依赖。**
+
+联系方式：  
+Twitter: @wup99925510  
+Email: 3166832341@qq.com  
+
 ![b44c83730f3f120a41304e847a8c6b85248556377](https://user-images.githubusercontent.com/60384089/195612349-ef348327-4d0d-43d1-a746-b2177c41d73b.png)
 
