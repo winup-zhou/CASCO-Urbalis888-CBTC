@@ -439,7 +439,7 @@ namespace TGMTAts {
                     if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.DoorEnableWindow) {
                         // 在停车窗口内
                         panel_[26] = StationManager.NextStation.Pass ? 1 : 2;
-                        if ((StationManager.NextStation.OpenLeftDoors || StationManager.NextStation.OpenRightDoors)&&StationManager.Stopped) panel[27] = 1;
+                        if ((StationManager.NextStation.OpenLeftDoors || StationManager.NextStation.OpenRightDoors)&&state.Speed == 0) panel[27] = 1;
                         else panel[27] = 0;
                         if (state.Speed == 0) {
                             // 停稳, 可以解锁车门, 解锁对应方向车门
