@@ -1,6 +1,7 @@
 # Urbalis 888 CBTC
 适用于 BVE 5/6 的 CASCO Urbalis888 CBTC 信号系统插件，
 基于项目 zbx1425/TGMT-CBTC  
+**不兼容OpenBve**
 
 支持ATO和ATP的模拟以及不同信号等级下的信号系统动作
 
