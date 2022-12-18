@@ -43,7 +43,7 @@ namespace TGMTAts{
                 if (key == AtsKey.A1) a1Down = true;
                 if (key == AtsKey.B1) b1Down = true;
                 if (a1Down && b1Down && Ato.IsAvailable()) {
-                    driveMode = 2;
+                    driveMode = 0;
                 }
             } else if (key == AtsKey.A2) {
                 if (!RMsel && !BMsel&& !(nowSpeed > 0)) RMsel = true;

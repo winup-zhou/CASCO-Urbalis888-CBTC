@@ -50,11 +50,11 @@ namespace TGMTAts {
                     recommendSpeed = -10;
                     targetDistance = -10;
                     targetSpeed = -10;
-                    driveMode = 0;
+                    driveMode = 2;
                     break;
                 case 1:
                     // ITC
-                    if (selectedMode > 0 && driveMode == 0) driveMode = 1;
+                    if (selectedMode > 0 && driveMode == 2) driveMode = 1;
                     maximumCurve = CalculatedLimit.Calculate(location,
                         Config.EbPatternDeceleration, Config.RecommendSpeedOffset, movementEndpoint, trackLimit);
                     targetCurve = CalculatedLimit.Calculate(location,
@@ -72,7 +72,7 @@ namespace TGMTAts {
                     // CTC
                     releaseSpeed = false;
                     movementEndpoint = StationManager.CTCEndpoint();
-                    if (selectedMode > 0 && driveMode == 0) driveMode = 1;
+                    if (selectedMode > 0 && driveMode == 2) driveMode = 1;
                     maximumCurve = CalculatedLimit.Calculate(location,
                         Config.EbPatternDeceleration, Config.RecommendSpeedOffset, movementEndpoint,
                         PreTrainManager.GetEndpoint(), trackLimit);
@@ -113,12 +113,12 @@ namespace TGMTAts {
             nowSpeed = state.Speed;
 
             // 显示速度、预选模式、驾驶模式、控制级别、车门模式
-            panel_[31] = 0;
+            panel_[31] = 3;
             panel_[1] = Convert.ToInt32(Math.Floor(Math.Abs(state.Speed * speedMultiplier)));
-            panel_[22] = BMstatus ? 3 : 4;
+            panel_[22] = BMstatus ? 2 : 1;
             panel_[24] = driveMode;
             panel_[25] = signalMode;
-            panel_[28] = (driveMode > 0) ? (driveMode > 1 ? doorMode : 1) : 0;
+            panel_[28] = (driveMode < 2) ? (doorMode - 1) : 4;
 
 
             // 显示临时预选模式
@@ -127,7 +127,11 @@ namespace TGMTAts {
                 selectModeStartTime = 0;
             }*/
             if (BMsel) {
-                panel_[22] = time % 1000 < 500 ? (BMstatus ? 3 : 4) : 6;
+                panel_[22] = time % 1000 < 500 ? (BMstatus ? 2 : 1) : 0;
+            }
+            if (!BMstatus && signalMode == 1)
+            {
+                panel_[22] = time % 1000 < 500 ? 2 : 0;
             }
 
             // 显示目标速度、建议速度、干预速度
@@ -138,16 +142,16 @@ namespace TGMTAts {
             panel_[11] = distanceToPixel(targetDistance);
             if (driveMode == 1&& targetDistance > 0 && targetSpeed < ebSpeed)
             {
-                    panel_[44] = targetDistance > Config.TargetSpeedShowDistance ? 1 : 0;
+                    panel_[44] = targetDistance > Config.TargetSpeedShowDistance ? 0 : 1;
             }
-            else panel_[44] = 1;
+            else panel_[44] = 0;
             panel_[19] = (int)targetDistance;
  
             distanceToColor(targetSpeed, targetDistance, panel);
             targetSpeed = Math.Min(targetSpeed, Config.MaxSpeed);
             panel_[17] = (int)targetSpeed;
             panel_[18] = (targetSpeed < 0) ? 1 : 0;
-            panel_[29] = 0;
+            panel_[29] = 4;
 
             if (ModesAvailable)
             {
@@ -166,12 +170,12 @@ namespace TGMTAts {
             if (signalMode > 1 && state.Speed == 0) {
                 if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.DoorEnableWindow
                     && time > StationManager.NextStation.DepartureTime - Config.DepartRequestTime * 1000 && !doorOpen && StationManager.Arrived) {
-                    panel_[32] = 2;
-                } else if (doorOpen && time - doorOpenTime >= Config.CloseRequestShowTime * 1000) {
                     panel_[32] = 1;
+                } else if (doorOpen && time - doorOpenTime >= Config.CloseRequestShowTime * 1000) {
+                    panel_[32] = 0;
                 } else if(StationManager.Arrived&&state.Time < StationManager.NextStation.RouteOpenTime)
                 {
-                    panel_[32] = 3;
+                    panel_[32] = 2;
                     if (state.Speed > 0)
                     {
                         if (Messages[Messages.Count - 1].Item3 > 0)
@@ -186,30 +190,30 @@ namespace TGMTAts {
                     }
                 } 
                 else {
-                    panel_[32] = 0;
+                    panel_[32] = 3;
                 }
             } else {
-                panel_[32] = 0;
+                panel_[32] = 3;
             }
             if (signalMode >= 2 && state.Speed == 0) {
                 if (doorOpen) {
                     if (time - doorOpenTime >= 1000) {
-                        panel_[29] = 3;
+                        panel_[29] = 2;
                     } else {
-                        panel_[29] = 0;
+                        panel_[29] = 4;
                     }
                 } else {
                     if (time - doorCloseTime >= 1000) {
-                        panel_[29] = 0;
+                        panel_[29] = 4;
                     } else {
-                        panel_[29] = 3;
+                        panel_[29] = 2;
                     }
                 }
             }
 
             // 如果没有无线电，显示无线电故障
-            panel_[23] = driveMode == 0 ? 1 : 0;
-            panel_[30] = deviceCapability != 2 ? 1 : 0;
+            panel_[23] = driveMode == 2 ? 1 : 0;
+            panel_[30] = deviceCapability != 2 ? 0 : 1;
 
             // ATO
             panel[40] = 0;
@@ -222,24 +226,24 @@ namespace TGMTAts {
                     driveMode = 1;
                 }
                 if (doorOpen) driveMode = 1;
-                if (driveMode >= 2) {
+                if (driveMode == 0) {
                     panel[40] = 1;
                     var notch = Ato.GetCmdNotch(state.Speed, recommendSpeed, ebSpeed);
                     if (notch < 0) {
                         handles.Power = 0;
                         handles.Brake = -notch;
-                        panel_[21] = 3;
+                        panel_[21] = 1;
                     } else if (notch > 0) {
                         handles.Power = notch;
                         handles.Brake = 0;
-                        panel_[21] = 1;
+                        panel_[21] = 0;
                     } else {
                         handles.Power = 0;
                         handles.Brake = 0;
                         panel_[21] = 2;
                     }
                 } else {
-                    panel_[21] = 0;
+                    panel_[21] = 4;
                     if (Ato.IsAvailable()) {
                         // 闪烁
                         panel[40] = time % 1000 < 500 ? 1 : 0;
@@ -280,16 +284,16 @@ namespace TGMTAts {
                         MsglastShowTime = state.Time;
                     }
                     ebState = 2;
-                    if (driveMode > 1) driveMode = 1;
+                    if (driveMode < 1) driveMode = 1;
                     panel_[10] = 2;
-                    panel_[29] = 2;
+                    panel_[29] = 0;
                     sound[0] = sound[0] == 0 ? -10000 : 1;
                     handles.Brake = vehicleSpec.BrakeNotches + 1;
                 } else {
                     if (ebState > 0) {
                         // 刚刚触发紧急制动，继续制动
                         if (ebState == 2) panel_[10] = 2;
-                        panel_[29] = 2;
+                        panel_[29] = 0;
                         sound[0] = sound[0] == 0 ? -10000 : 1;
                         handles.Brake = vehicleSpec.BrakeNotches + 1;
                     } else if (driveMode == 1 && state.Speed > recommendSpeed_on_dmi + 1.5) {
@@ -325,7 +329,7 @@ namespace TGMTAts {
                 ebState = 2;
                 // 显示紧急制动、目标距离0、速度0
                 panel_[10] = 2;
-                panel_[29] = 2;
+                panel_[29] = 0;
                 panel_[11] = 0;
                 panel_[19] = 0;
                 panel_[17] = 0;
@@ -338,7 +342,7 @@ namespace TGMTAts {
             }
             if (doorOpen) {
                 panel_[15] = -10 * speedMultiplier;
-                panel_[16] = driveMode == 0 ? -10 : 0;
+                panel_[16] = driveMode == 2 ? -10 : 0;
                 if (handles.Brake < 4) handles.Brake = 4;
             }
 
@@ -372,7 +376,7 @@ namespace TGMTAts {
                     }
                     ebState = 2;
                 }
-                else if (doorOpen && panel_[29] == 3)
+                else if (doorOpen && panel_[29] == 2)
                 {
                     if (ebState == 0)
                     {
@@ -435,74 +439,75 @@ namespace TGMTAts {
                 if (StationManager.NextStation.DepartureTime < 0.1) panel_[102] = 0;
                 if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.StationStartDistance) {
                     // 在车站范围内
-                    if (signalMode == 2&&!StationManager.NextStation.Pass && StationManager.NextStation.StopPosition - location > Config.StationStartDistance - 50) panel_[29] = 4;
+                    if (signalMode == 2&&!StationManager.NextStation.Pass && StationManager.NextStation.StopPosition - location > Config.StationStartDistance - 50) panel_[29] = 3;
                     if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.DoorEnableWindow) {
                         // 在停车窗口内
-                        panel_[26] = StationManager.NextStation.Pass ? 1 : 2;
+                        panel_[26] = StationManager.NextStation.Pass ? 2 : 1;
                         if ((StationManager.NextStation.OpenLeftDoors || StationManager.NextStation.OpenRightDoors)&&state.Speed == 0) panel[27] = 1;
                         else panel[27] = 0;
                         if (state.Speed == 0) {
                             // 停稳, 可以解锁车门, 解锁对应方向车门
                             if (StationManager.NextStation.OpenLeftDoors)
                             {
-                                panel_[27] = time % 1000 < 500 ? 1 : 0;
+                                panel_[27] = time % 1000 < 500 ? 0 : 3;
                             }
                             else if (StationManager.NextStation.OpenRightDoors)
                             {
-                                panel_[27] = time % 1000 < 500 ? 2 : 0;
+                                panel_[27] = time % 1000 < 500 ? 1 : 3;
                             }
                             else if (StationManager.NextStation.OpenRightDoors && StationManager.NextStation.OpenLeftDoors)
                             {
-                                panel[27] = time % 1000 > 500 ? 3 : 0;
+                                panel[27] = time % 1000 > 500 ? 2 : 3;
                             }
                             else
                             {
-                                panel_[27] = 0;
+                                panel_[27] = 3;
                             }
                             if (doorOpen) {
                                 if (StationManager.NextStation.OpenLeftDoors)
                                 {
-                                    panel_[27] = 1;
+                                    panel_[27] = 0;
                                 }
                                 else if (StationManager.NextStation.OpenRightDoors)
                                 {
-                                    panel_[27] = 2;
+                                    panel_[27] = 1;
                                 }
                                 else if (StationManager.NextStation.OpenRightDoors&&StationManager.NextStation.OpenLeftDoors)
                                 {
-                                    panel_[27] = 3;
+                                    panel_[27] = 2;
                                 } // 切换成已开门图像
                             }
                         } else {
-                            panel_[27] = 0;
+                            panel_[27] = 3;
                         }
                     } else {
                         // 不在停车窗口内
-                        panel_[26] = 1;
-                        panel_[27] = 0;
+                        panel_[26] = 2;
+                        panel_[27] = 3;
                         panel[27] = 0;
                     }
                 } else {
                     // 不在车站范围内
                     panel_[26] = 0;
-                    panel_[27] = 0;
+                    panel_[27] = 3;
                     panel[27] = 0;
                 }
                 if (signalMode == 0) {
                     // RM-IXL, 门要是开了就当它按了门允许, 没有车门使能和停车窗口指示
                     panel_[26] = 0;
-                    panel_[27] = doorOpen ? 4 : 0;
+                    panel_[27] = doorOpen ? 4 : 3;
                     panel[27] = 0;
-                    if (doorOpen&&localised) panel_[29] = deviceCapability != 2 ? 0 : 4;
+                    if (doorOpen&&localised) panel_[29] = deviceCapability != 2 ? 4 : 2;
                 }
             }
 
             if (localised == false || deviceCapability == 0)
             {
-                if (driveMode != 0)
+                if (driveMode < 2)
                 {
-                    panel_[32] = panel_[26] = 0;
-                    panel_[27] = doorOpen ? 4 : 0;
+                    panel_[26] = 0;
+                    panel_[32] = 3;
+                    panel_[27] = doorOpen ? 4 : 3;
                     handles.Brake = vehicleSpec.BrakeNotches + 1;
                     recommendSpeed_on_dmi = 0;
                     recommendSpeed = -10;
@@ -510,10 +515,10 @@ namespace TGMTAts {
                     targetSpeed = 0;
                     targetDistance = -10;
                 }
-                panel_[31] = driveMode == 0 ? 2 : 5;
+                panel_[31] = 0;
             }
 
-            if (driveMode > 0)
+            if (driveMode < 2)
             {
                 panel_[16] = (int)(ebSpeed * speedMultiplier);
             }
@@ -521,29 +526,29 @@ namespace TGMTAts {
             {
                 panel_[16] = -1;
             }
-            if (driveMode < 2)
+            if (driveMode > 0)
             {
-                panel_[15] = driveMode == 0 ? -1 : (int)(recommendSpeed_on_dmi * speedMultiplier);
+                panel_[15] = driveMode == 2 ? -1 : (int)(recommendSpeed_on_dmi * speedMultiplier);
             }
             else
             {
                 panel_[15] = -1;
             }
 
-            if (StationManager.NextStation.Pass && Math.Abs(StationManager.NextStation.StopPosition - location) < Config.StationStartDistance + 200) panel_[31] = 1;
+            if (StationManager.NextStation.Pass && Math.Abs(StationManager.NextStation.StopPosition - location) < Config.StationStartDistance + 200) panel_[31] = 2;
 
             //手动EB,只能停车后缓解
             if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed != 0) ebState = 1;
-            else if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed == 0) { panel_[29] = 2; sound[0] = 1; }
+            else if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed == 0) { panel_[29] = 0; sound[0] = 1; }
             else if (handles.Brake != vehicleSpec.BrakeNotches + 1 && !wheelslip&&!(driveMode == 1 && state.Speed > recommendSpeed_on_dmi + 1.5)&&ebState == 0) sound[0] = -10000;
             //if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed == 0) panel_[29] = 2;
 
             //各种按钮和指示灯
             panel[28] = signalMode == 2 ? 1 : 0;//CBTC指示
-            if ((driveMode != 0 || RMstatus) && state.Speed < 1) panel[29] = 1;
+            if ((driveMode != 2 || RMstatus) && state.Speed < 1) panel[29] = 1;
             else panel[29] = 0;
 
-            if (driveMode==0)
+            if (driveMode==2)
             {
                 panel_[43] = 1;
             }
@@ -552,14 +557,14 @@ namespace TGMTAts {
                 panel_[43] = 0;
             }
 
-            if (driveMode != 2) { 
+            if (driveMode != 0) { 
                 if (handles.Brake > 0)
                 {
-                    panel_[21] = 3;
+                    panel_[21] = 1;
                 }
                 else if (handles.Power > 0)
                 {
-                    panel_[21] = 1;
+                    panel_[21] = 0;
                 }
                 else if (handles.Power == 0 && handles.Brake == 0)
                 {
@@ -838,11 +843,11 @@ namespace TGMTAts {
                 var nowAcc = (state.Speed * state.Speed - lastSpeed * lastSpeed) / state.Location - lastlocation / 2;
                 var wheelSpeed = (state.Speed + lastSpeed) / 2;
                 var normalSpeed = ((state.Location - lastlocation) / ((state.Time - lastJudgeTime) / 1000)) * 3.6;
-                if (panel_[29] != 2 && lastAcc != 0 && lastlocation != 0 && lastJudgeTime != 0)
+                if (panel_[29] != 0 && lastAcc != 0 && lastlocation != 0 && lastJudgeTime != 0)
                 {
                     if (Math.Abs(wheelSpeed - normalSpeed) > 3 && Math.Abs(wheelSpeed - normalSpeed) <= 6)
                     {
-                        panel_[29] = state.Time % 1000 < 500 ? 1 : 0;
+                        panel_[29] = state.Time % 1000 < 500 ? 1 : 4;
                     }
                     else if (Math.Abs(wheelSpeed - normalSpeed) > 6)
                     {
@@ -884,29 +889,54 @@ namespace TGMTAts {
         // 把目标距离折算成距离条上的像素数量。
         private static int distanceToPixel(double targetdistance) {
             int tgpixel = -10;
-            if (targetdistance < 1) {
-                tgpixel = 0;
-            } else if (targetdistance < 2) {
-                tgpixel = Convert.ToInt32(0 + (targetdistance - 1) / 1 * 20);
-            } else if (targetdistance < 5) {
-                tgpixel = Convert.ToInt32(20 + (targetdistance - 2) / 3 * 25);
-            } else if (targetdistance < 10) {
-                tgpixel = Convert.ToInt32(50 + (targetdistance - 5) / 5 * 20);
-            } else if (targetdistance < 20) {
-                tgpixel = Convert.ToInt32(70 + (targetdistance - 10) / 10 * 20);
-            } else if (targetdistance < 50) {
-                tgpixel = Convert.ToInt32(90 + (targetdistance - 20) / 30 * 25);
-            } else if (targetdistance < 100) {
-                tgpixel = Convert.ToInt32(118 + (targetdistance - 50) / 50 * 20);
-            } else if (targetdistance < 200) {
-                tgpixel = Convert.ToInt32(138 + (targetdistance - 100) / 100 * 20);
-            } else if (targetdistance < 500) {
-                tgpixel = Convert.ToInt32(158 + (targetdistance - 200) / 300 * 25);
-            } else if (targetdistance < 1000) {
-                tgpixel = Convert.ToInt32(185 + (targetdistance - 500) / 500 * 15);
-            } else {
-                tgpixel = 200;
+            if (targetdistance<=Config.TargetSpeedShowDistance)
+            { 
+                if (targetdistance < 1)
+                {
+                    tgpixel = 0;
+                }
+                else if (targetdistance < 2)
+                {
+                    tgpixel = Convert.ToInt32(0 + (targetdistance - 1) / 1 * 20);
+                }
+                else if (targetdistance < 5)
+                {
+                    tgpixel = Convert.ToInt32(20 + (targetdistance - 2) / 3 * 25);
+                }
+                else if (targetdistance < 10)
+                {
+                    tgpixel = Convert.ToInt32(50 + (targetdistance - 5) / 5 * 20);
+                }
+                else if (targetdistance < 20)
+                {
+                    tgpixel = Convert.ToInt32(70 + (targetdistance - 10) / 10 * 20);
+                }
+                else if (targetdistance < 50)
+                {
+                    tgpixel = Convert.ToInt32(90 + (targetdistance - 20) / 30 * 25);
+                }
+                else if (targetdistance < 100)
+                {
+                    tgpixel = Convert.ToInt32(118 + (targetdistance - 50) / 50 * 20);
+                }
+                else if (targetdistance < 200)
+                {
+                    tgpixel = Convert.ToInt32(138 + (targetdistance - 100) / 100 * 20);
+                }
+                else if (targetdistance < 500)
+                {
+                    tgpixel = Convert.ToInt32(158 + (targetdistance - 200) / 300 * 25);
+                }
+                else if (targetdistance < 1000)
+                {
+                    tgpixel = Convert.ToInt32(185 + (targetdistance - 500) / 500 * 15);
+                }
+                else
+                {
+                    tgpixel = 200;
+                }
             }
+            
             return tgpixel;
         }
 

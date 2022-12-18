@@ -47,7 +47,7 @@ namespace TGMTAts {
 
         // 0: RM; 1: SM-I; 2: SM-C; 3: AM-I; 4: AM-C; 5: XAM
         public static int selectedMode = 4;
-        // 0: RM; 1: SM; 2: AM; 3: XAM
+        // 0: AM; 1: CM; 2: RM; 3: EUM
         public static int driveMode = 1;
         // 0: IXL; 1: ITC; 2: CTC
         public static int signalMode = 2;
@@ -171,8 +171,8 @@ namespace TGMTAts {
             if (deviceCapability == 0) signalMode = 0; // 没有TGMT设备
             if (deviceCapability == 1 && signalMode > 1) signalMode = 1; // 没有无线电信号
 
-            if (signalMode > 0 && driveMode == 0) driveMode = 1; // 有信号就至少是SM
-            if (signalMode == 0 && driveMode > 0) driveMode = 0; // 没信号就得是RM
+            if (signalMode > 0 && driveMode == 2) driveMode = 1; // 有信号就至少是SM
+            if (signalMode == 0 && driveMode < 3) driveMode = 3; // 没信号就得是RM
         }
 
         public static int ConvertTime(int human) {
@@ -249,8 +249,9 @@ namespace TGMTAts {
                     {
                         Touch = true;
                         BMstatus = false;
-                        selectedMode = 4;
+                        selectedMode = 3;
                         FixIncompatibleModes();
+                        selectedMode = 4;
                         BMsel = false;
                     }
                 }
