@@ -140,7 +140,7 @@ namespace TGMTAts {
                 targetSpeed = -10;
             }
             panel_[11] = distanceToPixel(targetDistance);
-            if (driveMode == 1&& targetDistance > 0 && targetSpeed < ebSpeed)
+            if (driveMode == 1&& targetDistance > 0 && targetSpeed < ebSpeed - Config.RecommendSpeedOffset)
             {
                     panel_[44] = targetDistance > Config.TargetSpeedShowDistance ? 0 : 1;
             }
@@ -290,17 +290,28 @@ namespace TGMTAts {
                     sound[0] = sound[0] == 0 ? -10000 : 1;
                     handles.Brake = vehicleSpec.BrakeNotches + 1;
                 } else {
-                    if (ebState > 0) {
+                    if (ebState > 0)
+                    {
                         // 刚刚触发紧急制动，继续制动
                         if (ebState == 2) panel_[10] = 2;
                         panel_[29] = 0;
                         sound[0] = sound[0] == 0 ? -10000 : 1;
                         handles.Brake = vehicleSpec.BrakeNotches + 1;
-                    } else if (driveMode == 1 && state.Speed > recommendSpeed_on_dmi + 1.5) {
+                    }
+                    else if (driveMode == 1 && state.Speed > recommendSpeed_on_dmi + 1.5)
+                    {
                         // 超出建议速度，显示警告
                         panel_[10] = 1;
                         sound[0] = 0;
-                    } else {
+                    }
+                    else if (driveMode == 2 && state.Speed > 21.5)
+                    {
+                        // 超出建议速度，显示警告
+                        panel_[10] = 1;
+                        sound[0] = 0;
+                    }
+                    else
+                    {
                         panel_[10] = 0;
                         sound[0] = -10000;
                     }
@@ -518,6 +529,15 @@ namespace TGMTAts {
                 panel_[31] = 0;
             }
 
+            if (doorOpen)
+            {
+                recommendSpeed_on_dmi = 0;
+                recommendSpeed = -10;
+                ebSpeed = 0;
+                targetSpeed = 0;
+                targetDistance = -10;
+            }
+
             if (driveMode < 2)
             {
                 panel_[16] = (int)(ebSpeed * speedMultiplier);
@@ -540,7 +560,7 @@ namespace TGMTAts {
             //手动EB,只能停车后缓解
             if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed != 0) ebState = 1;
             else if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed == 0) { panel_[29] = 0; sound[0] = 1; }
-            else if (handles.Brake != vehicleSpec.BrakeNotches + 1 && !wheelslip&&!(driveMode == 1 && state.Speed > recommendSpeed_on_dmi + 1.5)&&ebState == 0) sound[0] = -10000;
+            else if (handles.Brake != vehicleSpec.BrakeNotches + 1 && !wheelslip&&!(driveMode == 1 && state.Speed > recommendSpeed_on_dmi + 1.5)&&!(driveMode == 2 && state.Speed > 21.5) &&ebState == 0) sound[0] = -10000;
             //if (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed == 0) panel_[29] = 2;
 
             //各种按钮和指示灯
@@ -626,7 +646,7 @@ namespace TGMTAts {
             if (msgpos < 2) msgpos = 2;
 
             //信息提示栏
-            if(Messages[Messages.Count - 1].Item3> 0)
+            if(Messages[Messages.Count - 1].Item3 > 0)
             {
                 if (Messages[Messages.Count - 1].Item3 == 1)
                 {
@@ -634,76 +654,28 @@ namespace TGMTAts {
                     downbuttonClickable = false;
                     if (Messages.Count == 1)
                     {
-                        panel_[55] = 11;
-                        panel_[56] = 11;
-                        panel_[57] = 11;
-                        panel_[58] = 11;
                         panel_[59] = 0;
-                        panel_[50] = 11;
-                        panel_[51] = 11;
-                        panel_[52] = 11;
-                        panel_[53] = 11;
                         panel_[54] = 0;
-                        panel_[45] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                        panel_[46] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                        panel_[47] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                        panel_[48] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
                         panel_[49] = Messages[0].Item2;
                     }
                     else if (Messages.Count == 2)
                     {
-                        panel_[55] = 11;
-                        panel_[56] = 11;
-                        panel_[57] = 11;
-                        panel_[58] = 11;
                         panel_[59] = 0;
-                        panel_[50] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                        panel_[51] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                        panel_[52] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                        panel_[53] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
                         panel_[54] = Messages[0].Item2;
-                        panel_[45] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
-                        panel_[46] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
-                        panel_[47] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
-                        panel_[48] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
                         panel_[49] = Messages[1].Item2;
                     }
                     else if (Messages.Count == 3)
                     {
-                        panel_[55] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                        panel_[56] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                        panel_[57] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                        panel_[58] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
                         panel_[59] = Messages[0].Item2;
-                        panel_[50] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
-                        panel_[51] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
-                        panel_[52] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
-                        panel_[53] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
                         panel_[54] = Messages[1].Item2;
-                        panel_[45] = D(Messages[2].Item1 / 1000 / 3600 % 60, 1);
-                        panel_[46] = D(Messages[2].Item1 / 1000 / 3600 % 60, 0);
-                        panel_[47] = D(Messages[2].Item1 / 1000 / 60 % 60, 1);
-                        panel_[48] = D(Messages[2].Item1 / 1000 / 60 % 60, 0);
                         panel_[49] = Messages[2].Item2;
                     }
 
                     else
                     {
                         msgpos = Messages.Count - 1;
-                        panel_[55] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 1);
-                        panel_[56] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 0);
-                        panel_[57] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 1);
-                        panel_[58] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 0);
                         panel_[59] = Messages[msgpos - 2].Item2;
-                        panel_[50] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 1);
-                        panel_[51] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 0);
-                        panel_[52] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 1);
-                        panel_[53] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 0);
                         panel_[54] = Messages[msgpos - 1].Item2;
-                        panel_[45] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 1);
-                        panel_[46] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 0);
-                        panel_[47] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 1);
-                        panel_[48] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 0);
                         panel_[49] = Messages[msgpos].Item2;
                     }
                     panel_[60] = 1;
@@ -722,20 +694,8 @@ namespace TGMTAts {
                     upbuttonClickable = false;
                     downbuttonClickable = false;
                     panel_[36] = 1;
-                    panel_[55] = 11;
-                    panel_[56] = 11;
-                    panel_[57] = 11;
-                    panel_[58] = 11;
                     panel_[59] = 0;
-                    panel_[50] = 11;
-                    panel_[51] = 11;
-                    panel_[52] = 11;
-                    panel_[53] = 11;
                     panel_[54] = Messages[Messages.Count - 1].Item2;
-                    panel_[45] = 11;
-                    panel_[46] = 11;
-                    panel_[47] = 11;
-                    panel_[48] = 11;
                     panel_[49] = 0;
                     if (state.Time - MsglastShowTime > 5000)
                     {
@@ -763,56 +723,20 @@ namespace TGMTAts {
                 }
                 if (Messages.Count == 1)
                 {
-                    panel_[55] = 11;
-                    panel_[56] = 11;
-                    panel_[57] = 11;
-                    panel_[58] = 11;
                     panel_[59] = 0;
-                    panel_[50] = 11;
-                    panel_[51] = 11;
-                    panel_[52] = 11;
-                    panel_[53] = 11;
                     panel_[54] = 0;
-                    panel_[45] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                    panel_[46] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                    panel_[47] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                    panel_[48] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
                     panel_[49] = Messages[0].Item2;
                 }
                 else if (Messages.Count == 2)
                 {
-                    panel_[55] = 11;
-                    panel_[56] = 11;
-                    panel_[57] = 11;
-                    panel_[58] = 11;
                     panel_[59] = 0;
-                    panel_[50] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                    panel_[51] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                    panel_[52] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                    panel_[53] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
                     panel_[54] = Messages[0].Item2;
-                    panel_[45] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
-                    panel_[46] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
-                    panel_[47] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
-                    panel_[48] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
                     panel_[49] = Messages[1].Item2;
                 }
                 else if (Messages.Count == 3)
                 {
-                    panel_[55] = D(Messages[0].Item1 / 1000 / 3600 % 60, 1);
-                    panel_[56] = D(Messages[0].Item1 / 1000 / 3600 % 60, 0);
-                    panel_[57] = D(Messages[0].Item1 / 1000 / 60 % 60, 1);
-                    panel_[58] = D(Messages[0].Item1 / 1000 / 60 % 60, 0);
                     panel_[59] = Messages[0].Item2;
-                    panel_[50] = D(Messages[1].Item1 / 1000 / 3600 % 60, 1);
-                    panel_[51] = D(Messages[1].Item1 / 1000 / 3600 % 60, 0);
-                    panel_[52] = D(Messages[1].Item1 / 1000 / 60 % 60, 1);
-                    panel_[53] = D(Messages[1].Item1 / 1000 / 60 % 60, 0);
                     panel_[54] = Messages[1].Item2;
-                    panel_[45] = D(Messages[2].Item1 / 1000 / 3600 % 60, 1);
-                    panel_[46] = D(Messages[2].Item1 / 1000 / 3600 % 60, 0);
-                    panel_[47] = D(Messages[2].Item1 / 1000 / 60 % 60, 1);
-                    panel_[48] = D(Messages[2].Item1 / 1000 / 60 % 60, 0);
                     panel_[49] = Messages[2].Item2;
                 }
 
@@ -820,20 +744,8 @@ namespace TGMTAts {
                 {
                     panel_[36] = 0;
                     panel_[60] = 0;
-                    panel_[55] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 1);
-                    panel_[56] = D(Messages[msgpos - 2].Item1 / 1000 / 3600 % 60, 0);
-                    panel_[57] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 1);
-                    panel_[58] = D(Messages[msgpos - 2].Item1 / 1000 / 60 % 60, 0);
                     panel_[59] = Messages[msgpos - 2].Item2;
-                    panel_[50] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 1);
-                    panel_[51] = D(Messages[msgpos - 1].Item1 / 1000 / 3600 % 60, 0);
-                    panel_[52] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 1);
-                    panel_[53] = D(Messages[msgpos - 1].Item1 / 1000 / 60 % 60, 0);
                     panel_[54] = Messages[msgpos - 1].Item2;
-                    panel_[45] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 1);
-                    panel_[46] = D(Messages[msgpos].Item1 / 1000 / 3600 % 60, 0);
-                    panel_[47] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 1);
-                    panel_[48] = D(Messages[msgpos].Item1 / 1000 / 60 % 60, 0);
                     panel_[49] = Messages[msgpos].Item2;
                 }
             }
@@ -869,10 +781,10 @@ namespace TGMTAts {
 
             // 刷新HMI, TDT, 信号机材质，为了减少对FPS影响把它限制到最多一秒10次
             if (lastDrawTime > state.Time) lastDrawTime = 0;
-            if (state.Time - lastDrawTime > 100) {
+            if (state.Time - lastDrawTime > 200) {
                 lastDrawTime = state.Time;
                 panel_[42] += 1;
-                panel_[42] %= 12;
+                panel_[42] %= 6;
                 TGMTPainter.PaintHMI(panel, state);
                 TGMTPainter.PaintTDT(panel, state);
                 //TextureManager.UpdateTexture(TextureManager.HmiTexture, TGMTPainter.PaintHMI(panel, state));
@@ -889,8 +801,6 @@ namespace TGMTAts {
         // 把目标距离折算成距离条上的像素数量。
         private static int distanceToPixel(double targetdistance) {
             int tgpixel = -10;
-            if (targetdistance<=Config.TargetSpeedShowDistance)
-            { 
                 if (targetdistance < 1)
                 {
                     tgpixel = 0;
@@ -935,8 +845,6 @@ namespace TGMTAts {
                 {
                     tgpixel = 200;
                 }
-            }
-            
             return tgpixel;
         }
 

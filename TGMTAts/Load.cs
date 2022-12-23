@@ -119,7 +119,7 @@ namespace TGMTAts {
                 TdtTexture = TextureManager.Register(Config.TDTImageSuffix,32,32);
                 var imgDir = Config.ImageAssetPath;
                 TouchManager.EnableEvent(MouseButtons.Left, TouchManager.EventType.Down);
-                HmiTexture.SetClickableArea(470, 0, 350, 600);
+                HmiTexture.SetClickableArea(450, 0, 370, 600);
                 /*upbutton_ = TouchManager.Register(Path.Combine(imgDir, "upbutton_for_click.png"), 64, 64);
                 upbutton_.SetClickableArea(0, 0, 50, 61);*/
                 HmiTexture.MouseDown += HmiTex_MouseDown;
@@ -205,9 +205,170 @@ namespace TGMTAts {
         }
         private static void HmiTex_MouseDown(object sender, TouchEventArgs e)
         {
-            //0 450 50 510
-            //39 505 141 564 171 * 270 * 
-            if (RMsel)
+            if (BMsel)
+            {
+                if (e.Y >= 513 && e.Y <= 575)
+                {
+                    if (e.X >= 51 && e.X <= 157)
+                    {
+                        Touch = true;
+                        BMstatus = true;
+                        selectedMode = 3;
+                        FixIncompatibleModes();
+                        BMsel = false;
+                    }
+                    else if (e.X >= 199 && e.X <= 297)
+                    {
+                        Touch = true;
+                        BMstatus = false;
+                        selectedMode = 3;
+                        FixIncompatibleModes();
+                        selectedMode = 4;
+                        BMsel = false;
+                    }
+                }
+            }
+            else if (CREWIDsel)
+            {
+                Touch = false;
+                if (e.X >= 62 && e.X <= 291 && e.Y >= 188 && e.Y <= 240)
+                {
+                    Touch = true;
+                    CrewID.Clear();
+                }
+                else if (e.X >= 62 && e.X <= 114)
+                {
+                    if (e.Y >= 263 && e.Y <= 315)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(7);
+                    }
+                    else if (e.Y >= 336 && e.Y <= 390)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(4);
+                    }
+                    else if (e.Y >= 411 && e.Y <= 465)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(1);
+                    }
+                    else if (e.Y >= 487 && e.Y <= 538)
+                    {
+                        Touch = true;
+                        CrewID = lastCrewID;
+                        CREWIDsel = false;
+                    }
+                }
+                else if (e.X >= 152 && e.X <= 206)
+                {
+                    if (e.Y >= 263 && e.Y <= 315)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(8);
+                    }
+                    else if (e.Y >= 336 && e.Y <= 390)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(5);
+                    }
+                    else if (e.Y >= 411 && e.Y <= 465)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(2);
+                    }
+                    else if (e.Y >= 487 && e.Y <= 538)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(0);
+                    }
+                }
+                else if (e.X >= 239 && e.X <= 294)
+                {
+                    Touch = true;
+                    if (e.Y >= 263 && e.Y <= 315)
+                    {
+                        if (CrewID.Count < 3)
+                            CrewID.Add(9);
+                    }
+                    else if (e.Y >= 336 && e.Y <= 390)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(6);
+                    }
+                    else if (e.Y >= 411 && e.Y <= 465)
+                    {
+                        Touch = true;
+                        if (CrewID.Count < 3)
+                            CrewID.Add(3);
+                    }
+                    else if (e.Y >= 487 && e.Y <= 538)
+                    {
+                        Touch = true;
+                        if (CrewID.Count != 3) CrewID = lastCrewID;
+                        CREWIDsel = false;
+                    }
+                }
+            }
+            else
+            {
+                if (e.X >= 5 && e.X <= 62)
+                {
+                    if (e.Y >= 470 && e.Y <= 527)
+                    {
+                        if (upbuttonClickable) Touch = true;
+                        msgpos += 1;
+                    }
+                    else if (e.Y >= 538 && e.Y <= 592)
+                    {
+                        if (downbuttonClickable) Touch = true;
+                        msgpos -= 1;
+                    }
+                }
+                else if (e.X >= 246 && e.X <= 336 && e.Y >= 7 && e.Y <= 52)
+                {
+                    Touch = true;
+                    lastCrewID = CrewID;
+                    CREWIDsel = true;
+                }
+            }
+            //MessageBox.Show(String.Format("X: {0}, Y: {1}", e.X, e.Y));
+        }
+
+    }
+}
+/*
+ UP 5 62 470 527
+ DW 5 62 538 592
+ ACK 51 157 513 575
+ UNACK 199 297 513 575
+ CLEAR 62 291 188 240
+ 7 62 114 263 315
+ 8 152 206 263 315
+ 9 239 294 263 315
+ 4  *   *  336 390
+ 5  *   *  336 390
+ 6  *   *  336 390
+ 3  *   *  411 465
+ 2  *   *  411 465
+ 1  *   *  411 465
+ N  *   *  487 538
+ 0  *   *  487 538
+ Y  *   *  487 538
+
+ ID  
+*/
+
+/*
+ if (RMsel)
             {
                 if (e.Y >= 505 && e.Y <= 564)
                 {
@@ -233,157 +394,5 @@ namespace TGMTAts {
                     }
                 }
             }
-            else if (BMsel)
-            {
-                if (e.Y >= 505 && e.Y <= 564)
-                {
-                    if (e.X >= 39 && e.X <= 141)
-                    {
-                        Touch = true;
-                        BMstatus = true;
-                        selectedMode = 3;
-                        FixIncompatibleModes();
-                        BMsel = false;
-                    }
-                    else if (e.X >= 171 && e.X <= 271)
-                    {
-                        Touch = true;
-                        BMstatus = false;
-                        selectedMode = 3;
-                        FixIncompatibleModes();
-                        selectedMode = 4;
-                        BMsel = false;
-                    }
-                }
-            }else if(CREWIDsel){
-                Touch = false;
-                if (e.X >= 53 && e.X <= 262 && e.Y >= 138 && e.Y <= 176)
-                {
-                    Touch = true;
-                    CrewID.Clear();
-                }
-                else if(e.X>= 53&&e.X<= 104)
-                {
-                    if (e.Y >= 192 && e.Y <= 232)
-                    {
-                        Touch = true;
-                        if (CrewID.Count < 3)
-                            CrewID.Add(7);
-                    }
-                    else if (e.Y >= 249 && e.Y <= 289)
-                    {
-                        Touch = true;
-                        if (CrewID.Count < 3)
-                            CrewID.Add(4);
-                    }
-                    else if (e.Y >= 305 && e.Y <= 345)
-                    {
-                        Touch = true;
-                        if (CrewID.Count < 3)
-                            CrewID.Add(1);
-                    }
-                    else if (e.Y >= 362 && e.Y <= 402)
-                    {
-                        Touch = true;
-                        CrewID = lastCrewID;
-                        CREWIDsel = false;
-                    }
-                }
-                else if (e.X >= 134 && e.X <= 185)
-                {
-                    if (e.Y >= 192 && e.Y <= 232)
-                    {
-                        Touch = true;
-                        if (CrewID.Count < 3)
-                            CrewID.Add(8);
-                    }
-                    else if (e.Y >= 249 && e.Y <= 289)
-                    {
-                        Touch = true;
-                        if (CrewID.Count < 3)
-                            CrewID.Add(5);
-                    }
-                    else if (e.Y >= 305 && e.Y <= 345)
-                    {
-                        Touch = true;
-                        if (CrewID.Count < 3)
-                            CrewID.Add(2);
-                    }
-                    else if (e.Y >= 362 && e.Y <= 402)
-                    {
-                        Touch = true;
-                        if (CrewID.Count < 3)
-                            CrewID.Add(0);
-                    }
-                }
-                else if (e.X >= 214 && e.X <= 265)
-                {
-                    Touch = true;
-                    if (e.Y >= 192 && e.Y <= 232)
-                    {
-                        if (CrewID.Count < 3)
-                            CrewID.Add(9);
-                    }
-                    else if (e.Y >= 249 && e.Y <= 289)
-                    {
-                        Touch = true;
-                        if (CrewID.Count < 3)
-                            CrewID.Add(6);
-                    }
-                    else if (e.Y >= 305 && e.Y <= 345)
-                    {
-                        Touch = true;
-                        if (CrewID.Count < 3)
-                            CrewID.Add(3);
-                    }
-                    else if (e.Y >= 362 && e.Y <= 402)
-                    {
-                        Touch = true;
-                        if(CrewID.Count != 3) CrewID = lastCrewID;
-                        CREWIDsel = false;
-                    }
-                }
-            }
-            else
-            {
-                if (e.X >= 0 && e.X <= 55)
-                {
-                    if (e.Y >= 450 && e.Y <= 510)
-                    {
-                        if(upbuttonClickable)Touch = true;
-                        msgpos += 1;
-                    }
-                    else if (e.Y >= 520 && e.Y <= 580)
-                    {
-                        if (downbuttonClickable) Touch = true;
-                        msgpos -= 1;
-                    }
-                }else if (e.X >= 210 && e.X <= 307&& e.Y >= 2 && e.Y <= 54)
-                {
-                    Touch = true;
-                    lastCrewID = CrewID;
-                    CREWIDsel = true;
-                }
-            }
-            // MessageBox.Show(String.Format("X: {0}, Y: {1}", e.X, e.Y));
-        }
-
-    }
-}
-/*
- CLEAR 53 138 262 176
- 7 53 192 104 232
- 8 134 192 185 232
- 9 214 192 265 232
- 4 * 249 * 289
- 5 * 249 * 289
- 6 * 249 * 289
- 3 * 305 * 345
- 2 * 305 * 345
- 1 * 305 * 345
- N * 362 * 402
- 0 * 362 * 402
- Y * 362 * 402
-
- ID  210 2 307 54
-*/
+            else 
+ */
