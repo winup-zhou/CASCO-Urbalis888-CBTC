@@ -100,11 +100,17 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Data" />
+    <Reference Include="TR.BVEConductorChecker, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TR.BVEConductorChecker.1.0.0\lib\net45\TR.BVEConductorChecker.dll</HintPath>
+    </Reference>
+    <Reference Include="TR.MyTask, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TR.MyTask.1.0.0\lib\net45\TR.MyTask.dll</HintPath>
+    </Reference>
     <Reference Include="Zbx1425.DXDynamicTexture-net35">
-      <HintPath>bin\Debug\x64\DTlib\Zbx1425.DXDynamicTexture-net35.dll</HintPath>
+      <HintPath>..\packages\Zbx1425.DXDynamicTexture\Zbx1425.DXDynamicTexture-net35.dll</HintPath>
     </Reference>
     <Reference Include="Zbx1425.DXDynamicTexture-net48">
-      <HintPath>bin\Debug\x64\DTlib\Zbx1425.DXDynamicTexture-net48.dll</HintPath>
+      <HintPath>..\packages\Zbx1425.DXDynamicTexture\Zbx1425.DXDynamicTexture-net48.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -20,8 +20,10 @@ namespace TGMTAts {
 
         [DllExport(CallingConvention.StdCall)]
         public static AtsHandles Elapse(AtsVehicleState state, IntPtr hPanel, IntPtr hSound) {
+
             var panel = new AtsIoArray(hPanel);
             var sound = new AtsIoArray(hSound);
+
             if (!pluginReady)
             {
                 sound[0] = -10000;
@@ -171,7 +173,8 @@ namespace TGMTAts {
                 if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.DoorEnableWindow
                     && time > StationManager.NextStation.DepartureTime - Config.DepartRequestTime * 1000 && !doorOpen && StationManager.Arrived) {
                     panel_[32] = 1;
-                } else if (doorOpen && time - doorOpenTime >= Config.CloseRequestShowTime * 1000) {
+                } else if (Math.Abs(StationManager.NextStation.StopPosition - location) < Config.DoorEnableWindow
+                    && closeRequest && StationManager.Arrived) {
                     panel_[32] = 0;
                 } else if(StationManager.Arrived&&state.Time < StationManager.NextStation.RouteOpenTime)
                 {

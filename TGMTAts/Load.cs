@@ -7,12 +7,14 @@ using System.Windows.Forms;
 using System.Linq;
 using System.Reflection;
 using Zbx1425.DXDynamicTexture;
+using TR;
 
 namespace TGMTAts {
 	public static partial class TGMTAts {
 
         public static TouchTextureHandle HmiTexture;
         public static TextureHandle TdtTexture;
+        public static BVEConductorChecker c_checker;
 
         public static int[] panel_ = new int[256];
         public static bool doorOpen;
@@ -66,6 +68,8 @@ namespace TGMTAts {
         public static bool upbuttonClickable = false;
         public static bool downbuttonClickable = false;
 
+        public static bool closeRequest = false;
+
         public static int ebState = 0;
         public static bool releaseSpeed = false;
         public static int ackMessage = 0;
@@ -112,6 +116,7 @@ namespace TGMTAts {
             }
 
             TextureManager.Initialize();
+            c_checker = new BVEConductorChecker { CheckRate = 200, AllowUnknownCommand = false };
 
             harmony = new HarmonyLib.Harmony("cn.zbx1425.bve.trainguardmt");
             try {
@@ -120,18 +125,14 @@ namespace TGMTAts {
                 var imgDir = Config.ImageAssetPath;
                 TouchManager.EnableEvent(MouseButtons.Left, TouchManager.EventType.Down);
                 HmiTexture.SetClickableArea(450, 0, 370, 600);
-                /*upbutton_ = TouchManager.Register(Path.Combine(imgDir, "upbutton_for_click.png"), 64, 64);
-                upbutton_.SetClickableArea(0, 0, 50, 61);*/
                 HmiTexture.MouseDown += HmiTex_MouseDown;
-                /*downbutton_ = TouchManager.Register(Path.Combine(imgDir, "downbutton_for_click.png"), 64, 64);*/
-                
+                c_checker.ConductorActioned += Conductor_Check;
 
                 //TextureManager.ApplyPatch();
                 TGMTPainter.Initialize();
             } catch (Exception ex) {
                MessageBox.Show(ex.ToString());
             }
-
         }
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
@@ -153,6 +154,26 @@ namespace TGMTAts {
                 ));
                 var fileName = (Environment.Version.Major >= 4) ?
                     "Zbx1425.DXDynamicTexture-net48.dll" : "Zbx1425.DXDynamicTexture-net35.dll";
+                return Assembly.LoadFile(Path.Combine(libPath, fileName));
+            }
+            if (args.Name.Contains("BVEConductorChecker"))
+            {
+                var libPath = Path.GetFullPath(Path.Combine(
+                    Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),
+                    Config.DTLibPath
+                ));
+                var fileName = (Environment.Version.Major >= 4) ?
+                    "TR.BVEConductorChecker-net45.dll": "TR.BVEConductorChecker-net20.dll";
+                return Assembly.LoadFile(Path.Combine(libPath, fileName));
+            }
+            if (args.Name.Contains("MyTask"))
+            {
+                var libPath = Path.GetFullPath(Path.Combine(
+                    Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),
+                    Config.DTLibPath
+                ));
+                var fileName = (Environment.Version.Major >= 4) ? 
+                    "TR.MyTask-net45.dll": "TR.MyTask-net20.dll";
                 return Assembly.LoadFile(Path.Combine(libPath, fileName));
             }
             return null;
@@ -193,6 +214,7 @@ namespace TGMTAts {
             TGMTPainter.Dispose();
             TextureManager.Dispose();
             Messages.Clear();
+            c_checker.Dispose();
         }
 
         public static void Log(string msg)
@@ -202,6 +224,11 @@ namespace TGMTAts {
             var min = time / 60 % 60;
             var sec = time % 60;
             debugMessages.Add(string.Format("{0:D2}:{1:D2}:{2:D2} {3}", hrs, min, sec, msg));
+        }
+        private static void Conductor_Check(object sender, ConductorActionedEventArgs e)
+        {
+            if (nowSpeed > 0 || !doorOpen) closeRequest = false;
+            if (e.ActionType == ConductorActionType.Bell_ON && doorOpen) closeRequest = true;
         }
         private static void HmiTex_MouseDown(object sender, TouchEventArgs e)
         {
